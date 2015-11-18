@@ -10,14 +10,6 @@ import java.util.Observer;
 import jsf31kochfractalfx.JSF31KochFractalFX;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -29,8 +21,6 @@ public class KochManager {
     private List<Edge> edgeList; 
     private List<Edge> tempEdgeList; 
     private KochFractal kochFractal;
-    private CyclicBarrier barrier;
-    private ExecutorService pool;
     TimeStamp timeStamp;
     
     public KochManager(JSF31KochFractalFX application)
@@ -44,9 +34,6 @@ public class KochManager {
         
         KochFractalObserver kochFractalObserver = new KochFractalObserver();//Create observer
         this.kochFractal.addObserver(kochFractalObserver);//Add observer
-        
-        pool = Executors.newFixedThreadPool(4);
-        barrier = new CyclicBarrier(4);
     }
     
     public void changeLevel(final int nxt)
@@ -60,41 +47,48 @@ public class KochManager {
             timeStamp = new TimeStamp();
             timeStamp.setBegin("Begin berekenen van edges.");
 
-            Thread generateThread = new Thread() {
+
+            final  Thread leftThread = new Thread()
+            {
+                @Override
+                public synchronized void run() {
+                   kochFractal.generateLeftEdge();
+                   notify();
+                }
+            };
+            leftThread.start();
+            
+            final Thread bottomThread = new Thread()
+            {
+                @Override
+                public synchronized void run() {
+                    kochFractal.generateBottomEdge();
+                    notify();
+                }
+            };
+            bottomThread.start();
+
+            final Thread rightThread = new Thread()
+            {
+                @Override
+                public synchronized void run() {
+                    kochFractal.generateRightEdge();
+                    notify();
+                }
+            };
+            rightThread.start();
+            
+            
+            final Thread drawThread = new Thread()
+            {
                 @Override
                 public void run() 
                 {
-                    try {
-                        Future<List<Edge>> leftE = pool.submit(new EdgeCallable(kochFractal.getLevel(), barrier) {
-                            @Override
-                            public void generate() {
-                                this.own.generateLeftEdge();
-                            }
-                        });
-                        
-                        Future<List<Edge>> rightE = pool.submit(new EdgeCallable(kochFractal.getLevel(), barrier) {
-                            @Override
-                            public void generate() {
-                                this.own.generateRightEdge();
-                            }
-                        });
-                        
-                        Future<List<Edge>> bottomE = pool.submit(new EdgeCallable(kochFractal.getLevel(), barrier) {
-                            @Override
-                            public void generate() {
-                                this.own.generateBottomEdge();
-                            }
-                        });
-                        
-                        barrier.await();
-                        
-                        
-                        tempEdgeList.addAll(leftE.get());
-                        tempEdgeList.addAll(rightE.get());
-                        tempEdgeList.addAll(bottomE.get());
-                        
-                        
-                        
+                    try
+                    {
+                        leftThread.join();
+                        bottomThread.join();
+                        rightThread.join();
                         timeStamp.setEnd("Edges berekend!");
                         application.setTextCalc(timeStamp.toString());
 
@@ -102,20 +96,14 @@ public class KochManager {
                         application.requestDrawEdges();
 
                         application.setTextNrEdges(edgeList.size()+"");
-                        
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(KochManager.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (BrokenBarrierException ex) {
-                        Logger.getLogger(KochManager.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (ExecutionException ex) {
-                        Logger.getLogger(KochManager.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    catch(Exception e)
+                    {
+
                     }
                 }
             };
-            generateThread.start();
-              
-            
-          
+            drawThread.start();
         }
         catch(Exception e)
         {
@@ -161,7 +149,7 @@ public class KochManager {
             tempEdgeList.add(edge);
 
             System.out.println("");
-            System.out.println("Edge " + edgeList.size() + " coordinates:");
+            System.out.println("Edge " + tempEdgeList.size() + " coordinates:");
             System.out.println("Start: " + edge.X2 + ", " + edge.Y2);
             System.out.println("End: " + edge.X1 + ", " + edge.Y1);
         }
