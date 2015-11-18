@@ -4,6 +4,7 @@
  */
 package calculate;
 
+import static java.lang.Thread.sleep;
 import java.util.Observable;
 import javafx.scene.paint.Color;
 
@@ -18,8 +19,9 @@ public class KochFractal extends Observable {
     private float hue;          // Hue value of color for next edge
     private boolean cancelled;  // Flag to indicate that calculation has been cancelled 
 
-    private void drawKochEdge(double ax, double ay, double bx, double by, int n) {
+    private void drawKochEdge(double ax, double ay, double bx, double by, int n) throws InterruptedException {
         if (!cancelled) {
+            sleep(10);
             if (n == 1) {
                 hue = hue + 1.0f / nrOfEdges;
                 Edge e = new Edge(ax, ay, bx, by, Color.hsb(hue*360.0, 1.0, 1.0));
@@ -40,19 +42,19 @@ public class KochFractal extends Observable {
         }
     }
 
-    public void generateLeftEdge() {
+    public void generateLeftEdge() throws InterruptedException {
         hue = 0f;
         cancelled = false;
         drawKochEdge(0.5, 0.0, (1 - Math.sqrt(3.0) / 2.0) / 2, 0.75, level);
     }
 
-    public void generateBottomEdge() {
+    public void generateBottomEdge() throws InterruptedException {
         hue = 1f / 3f;
         cancelled = false;
         drawKochEdge((1 - Math.sqrt(3.0) / 2.0) / 2, 0.75, (1 + Math.sqrt(3.0) / 2.0) / 2, 0.75, level);
     }
 
-    public void generateRightEdge() {
+    public void generateRightEdge() throws InterruptedException {
         hue = 2f / 3f;
         cancelled = false;
         drawKochEdge((1 + Math.sqrt(3.0) / 2.0) / 2, 0.75, 0.5, 0.0, level);

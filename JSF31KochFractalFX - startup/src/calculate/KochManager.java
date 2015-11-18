@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
+import javafx.scene.paint.Color;
 
 /**
  *
@@ -43,8 +44,6 @@ public class KochManager {
     {
         try
         {
-            application.clearKochPanel();
-            
             this.tempEdgeList = new ArrayList<Edge>();
             
             this.kochFractal.setLevel(nxt);
@@ -56,31 +55,34 @@ public class KochManager {
             final Task leftTask = new Task<Void>()
             {
                 @Override 
-                public Void call() {
+                public Void call() throws InterruptedException {
                     kochFractal.generateLeftEdge();
                     return null;
                 }
             };
+            application.ProgressLeftBar.progressProperty().bind(leftTask.progressProperty());
             new Thread(leftTask).start();
             
             final Task bottomTask = new Task<Void>()
             {
                 @Override 
-                public Void call() {
+                public Void call() throws InterruptedException {
                     kochFractal.generateBottomEdge();
                     return null;
                 }
             };
+            application.ProgressBottomBar.progressProperty().bind(bottomTask.progressProperty());
             new Thread(bottomTask).start();
             
             final Task rightTask = new Task<Void>()
             {
                 @Override 
-                public Void call() {
+                public Void call() throws InterruptedException {
                     kochFractal.generateRightEdge();
                     return null;
                 }
             };
+            application.ProgressRightBar.progressProperty().bind(rightTask.progressProperty());
             new Thread(rightTask).start();
             
             
@@ -141,7 +143,8 @@ public class KochManager {
             Platform.runLater(new Runnable(){
                 @Override
                 public void run() {
-                   application.drawEdge(edge);
+                   Edge e = new Edge(edge.X1,edge.Y1,edge.X2,edge.Y2, Color.WHITE);
+                   application.drawEdge(e);
                 }
             });
             

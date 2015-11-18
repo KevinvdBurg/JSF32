@@ -57,9 +57,9 @@ public class JSF31KochFractalFX extends Application {
     private Label labelProgressBottomNrEdge;
     private Label labelProgressRight;
     private Label labelProgressRightNrEdge;
-    private ProgressBar ProgressBottomBar;
-    private ProgressBar ProgressRightBar;
-    private ProgressBar ProgressLeftBar;
+    public ProgressBar ProgressBottomBar;
+    public ProgressBar ProgressRightBar;
+    public ProgressBar ProgressLeftBar;
     
     
     // Koch panel and its size
