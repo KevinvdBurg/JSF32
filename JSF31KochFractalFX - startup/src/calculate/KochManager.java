@@ -10,6 +10,7 @@ import java.util.Observer;
 import jsf31kochfractalfx.JSF31KochFractalFX;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 
@@ -52,7 +53,7 @@ public class KochManager {
             timeStamp.setBegin("Begin berekenen van edges.");
 
             
-            Task leftTask = new Task<Void>()
+            final Task leftTask = new Task<Void>()
             {
                 @Override 
                 public Void call() {
@@ -62,7 +63,7 @@ public class KochManager {
             };
             new Thread(leftTask).start();
             
-            Task bottomTask = new Task<Void>()
+            final Task bottomTask = new Task<Void>()
             {
                 @Override 
                 public Void call() {
@@ -72,7 +73,7 @@ public class KochManager {
             };
             new Thread(bottomTask).start();
             
-            Task rightTask = new Task<Void>()
+            final Task rightTask = new Task<Void>()
             {
                 @Override 
                 public Void call() {
@@ -81,6 +82,23 @@ public class KochManager {
                 }
             };
             new Thread(rightTask).start();
+            
+            
+            Task drawTask = new Task<Void>()
+            {
+                @Override 
+                public Void call() throws InterruptedException, ExecutionException {
+                    rightTask.get();
+                    leftTask.get();
+                    bottomTask.get();
+                    
+                    edgeList = tempEdgeList;
+                    application.requestDrawEdges();
+                    
+                    return null;
+                }
+            };
+            new Thread(drawTask).start();
         }
         catch(Exception e)
         {
@@ -97,13 +115,12 @@ public class KochManager {
     }
     
     public void drawEdges()
-    { 
-        this.application.clearKochPanel();
-
+    {
+        application.clearKochPanel();
         TimeStamp timeStamp = new TimeStamp();
         timeStamp.setBegin("Begin met tekenen.");
 
-        for(Edge edge : tempEdgeList)
+        for(Edge edge : edgeList)
         {
             this.application.drawEdge(edge);
         }
