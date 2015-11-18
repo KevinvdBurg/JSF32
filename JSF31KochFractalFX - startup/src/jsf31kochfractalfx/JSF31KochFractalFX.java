@@ -15,6 +15,7 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.input.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
@@ -50,6 +51,13 @@ public class JSF31KochFractalFX extends Application {
     private Label labelCalcText;
     private Label labelDraw;
     private Label labelDrawText;
+    private Label labelProgressLeft;
+    private Label labelProgressLeftText;
+    private Label labelProgressBottom;
+    private Label labelProgressBottomText;
+    private Label labelProgressRight;
+    private Label labelProgressRightText;
+    
     
     // Koch panel and its size
     private Canvas kochPanel;
@@ -158,6 +166,24 @@ public class JSF31KochFractalFX extends Application {
             }
         });
         
+        // Labels progress Left
+        labelProgressLeft = new Label("Progress Left:");
+        ProgressBar ProgressLeftBar = new ProgressBar();
+        grid.add(labelProgressLeft, 0, 8, 4, 1);
+        grid.add(ProgressLeftBar, 4, 8, 22, 1);
+        
+        // Labels progress Bottom
+        labelProgressBottom = new Label("Progress Bottom:");
+        ProgressBar ProgressBottomBar = new ProgressBar();
+        grid.add(labelProgressBottom, 0, 9, 4, 1); 
+        grid.add(ProgressBottomBar, 4, 9, 22, 1);
+        
+        // Labels progress Right
+        labelProgressRight = new Label("Progress Right:");
+        ProgressBar ProgressRightBar = new ProgressBar();
+        grid.add(labelProgressRight, 0, 10, 4, 1);
+        grid.add(ProgressRightBar, 4, 10, 22, 1);
+        
         // Create Koch manager and set initial level
         resetZoom();
         kochManager = new KochManager(this);
@@ -165,7 +191,7 @@ public class JSF31KochFractalFX extends Application {
         
         // Create the scene and add the grid pane
         Group root = new Group();
-        Scene scene = new Scene(root, kpWidth+50, kpHeight+170);
+        Scene scene = new Scene(root, kpWidth+50, kpHeight+370);
         root.getChildren().add(grid);
         
         // Define title and assign the scene for main window
