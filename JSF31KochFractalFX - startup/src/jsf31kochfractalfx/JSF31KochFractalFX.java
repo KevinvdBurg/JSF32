@@ -52,11 +52,14 @@ public class JSF31KochFractalFX extends Application {
     private Label labelDraw;
     private Label labelDrawText;
     private Label labelProgressLeft;
-    private Label labelProgressLeftText;
+    private Label labelProgressLeftNrEdge;
     private Label labelProgressBottom;
-    private Label labelProgressBottomText;
+    private Label labelProgressBottomNrEdge;
     private Label labelProgressRight;
-    private Label labelProgressRightText;
+    private Label labelProgressRightNrEdge;
+    private ProgressBar ProgressBottomBar;
+    private ProgressBar ProgressRightBar;
+    private ProgressBar ProgressLeftBar;
     
     
     // Koch panel and its size
@@ -168,21 +171,32 @@ public class JSF31KochFractalFX extends Application {
         
         // Labels progress Left
         labelProgressLeft = new Label("Progress Left:");
-        ProgressBar ProgressLeftBar = new ProgressBar();
+        labelProgressLeftNrEdge = new Label("Nr. Edges:");
+        ProgressLeftBar = new ProgressBar();
+        ProgressLeftBar.setProgress(0.0f);
         grid.add(labelProgressLeft, 0, 8, 4, 1);
         grid.add(ProgressLeftBar, 4, 8, 22, 1);
+        grid.add(labelProgressLeftNrEdge, 8, 8, 22, 1);
+        
         
         // Labels progress Bottom
         labelProgressBottom = new Label("Progress Bottom:");
-        ProgressBar ProgressBottomBar = new ProgressBar();
+        labelProgressBottomNrEdge = new Label("Nr. Edges:");
+        ProgressBottomBar = new ProgressBar();
+        ProgressBottomBar.setProgress(0.0f);
         grid.add(labelProgressBottom, 0, 9, 4, 1); 
         grid.add(ProgressBottomBar, 4, 9, 22, 1);
+        grid.add(labelProgressBottomNrEdge, 8, 9, 22, 1);
         
         // Labels progress Right
         labelProgressRight = new Label("Progress Right:");
-        ProgressBar ProgressRightBar = new ProgressBar();
+        labelProgressRightNrEdge = new Label("Nr. Edges:");
+        ProgressRightBar = new ProgressBar();
+        ProgressRightBar.setProgress(0.0f);
         grid.add(labelProgressRight, 0, 10, 4, 1);
         grid.add(ProgressRightBar, 4, 10, 22, 1);
+        grid.add(labelProgressRightNrEdge, 8, 10, 22, 1);
+        
         
         // Create Koch manager and set initial level
         resetZoom();
