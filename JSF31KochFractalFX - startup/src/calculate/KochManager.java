@@ -25,6 +25,18 @@ public class KochManager {
     private List<Edge> edgeList; 
     private List<Edge> tempEdgeList; 
     private KochFractal kochFractal;
+    
+    private Task<Void> rightTask = null;
+    private Task<Void> leftTask = null;
+    private Task<Void> bottomTask = null;
+    private Task<Void> drawTask = null;
+    
+    private Thread tRight = null;
+    private Thread tLeft = null;
+    private Thread tBottom = null;
+    private Thread tDraw = null;
+    
+    
     TimeStamp timeStamp;
     
     public KochManager(JSF31KochFractalFX application)
@@ -50,9 +62,8 @@ public class KochManager {
             
             timeStamp = new TimeStamp();
             timeStamp.setBegin("Begin berekenen van edges.");
-
             
-            final Task leftTask = new Task<Void>()
+            leftTask = new Task<Void>()
             {
                 @Override 
                 public Void call() throws InterruptedException {
@@ -60,10 +71,10 @@ public class KochManager {
                     return null;
                 }
             };
-            application.ProgressLeftBar.progressProperty().bind(leftTask.progressProperty());
-            new Thread(leftTask).start();
             
-            final Task bottomTask = new Task<Void>()
+            
+            
+            bottomTask = new Task<Void>()
             {
                 @Override 
                 public Void call() throws InterruptedException {
@@ -71,10 +82,8 @@ public class KochManager {
                     return null;
                 }
             };
-            application.ProgressBottomBar.progressProperty().bind(bottomTask.progressProperty());
-            new Thread(bottomTask).start();
             
-            final Task rightTask = new Task<Void>()
+            rightTask = new Task<Void>()
             {
                 @Override 
                 public Void call() throws InterruptedException {
@@ -82,11 +91,8 @@ public class KochManager {
                     return null;
                 }
             };
-            application.ProgressRightBar.progressProperty().bind(rightTask.progressProperty());
-            new Thread(rightTask).start();
             
-            
-            Task drawTask = new Task<Void>()
+            drawTask = new Task<Void>()
             {
                 @Override 
                 public Void call() throws InterruptedException, ExecutionException {
@@ -100,7 +106,22 @@ public class KochManager {
                     return null;
                 }
             };
-            new Thread(drawTask).start();
+
+            application.ProgressBottomBar.progressProperty().bind(bottomTask.progressProperty());
+            application.ProgressRightBar.progressProperty().bind(rightTask.progressProperty());
+            application.ProgressLeftBar.progressProperty().bind(leftTask.progressProperty());
+            
+            tLeft = new Thread(leftTask);
+            tBottom = new Thread(bottomTask);
+            tRight = new Thread(rightTask);
+            tDraw = new Thread(drawTask);
+            
+            tLeft.start();
+            tBottom.start();
+            tRight.start();
+            tDraw.start();
+            
+            
         }
         catch(Exception e)
         {
@@ -137,8 +158,8 @@ public class KochManager {
         public synchronized void update(Observable o, Object arg)
         {
             final Edge edge = (Edge) arg;
-            
             tempEdgeList.add(edge);
+            //System.out.println(edge);
             
             Platform.runLater(new Runnable(){
                 @Override
