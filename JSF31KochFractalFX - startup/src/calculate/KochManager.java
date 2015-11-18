@@ -10,6 +10,8 @@ import java.util.Observer;
 import jsf31kochfractalfx.JSF31KochFractalFX;
 import java.util.List;
 import java.util.ArrayList;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 
 /**
  *
@@ -40,6 +42,8 @@ public class KochManager {
     {
         try
         {
+            application.clearKochPanel();
+            
             this.tempEdgeList = new ArrayList<Edge>();
             
             this.kochFractal.setLevel(nxt);
@@ -47,63 +51,36 @@ public class KochManager {
             timeStamp = new TimeStamp();
             timeStamp.setBegin("Begin berekenen van edges.");
 
-
-            final  Thread leftThread = new Thread()
+            
+            Task leftTask = new Task<Void>()
             {
-                @Override
-                public synchronized void run() {
-                   kochFractal.generateLeftEdge();
-                   notify();
+                @Override 
+                public Void call() {
+                    kochFractal.generateLeftEdge();
+                    return null;
                 }
             };
-            leftThread.start();
+            new Thread(leftTask).start();
             
-            final Thread bottomThread = new Thread()
+            Task bottomTask = new Task<Void>()
             {
-                @Override
-                public synchronized void run() {
+                @Override 
+                public Void call() {
                     kochFractal.generateBottomEdge();
-                    notify();
+                    return null;
                 }
             };
-            bottomThread.start();
-
-            final Thread rightThread = new Thread()
+            new Thread(bottomTask).start();
+            
+            Task rightTask = new Task<Void>()
             {
-                @Override
-                public synchronized void run() {
+                @Override 
+                public Void call() {
                     kochFractal.generateRightEdge();
-                    notify();
+                    return null;
                 }
             };
-            rightThread.start();
-            
-            
-            final Thread drawThread = new Thread()
-            {
-                @Override
-                public void run() 
-                {
-                    try
-                    {
-                        leftThread.join();
-                        bottomThread.join();
-                        rightThread.join();
-                        timeStamp.setEnd("Edges berekend!");
-                        application.setTextCalc(timeStamp.toString());
-
-                        edgeList = tempEdgeList;
-                        application.requestDrawEdges();
-
-                        application.setTextNrEdges(edgeList.size()+"");
-                    }
-                    catch(Exception e)
-                    {
-
-                    }
-                }
-            };
-            drawThread.start();
+            new Thread(rightTask).start();
         }
         catch(Exception e)
         {
@@ -122,15 +99,11 @@ public class KochManager {
     public void drawEdges()
     { 
         this.application.clearKochPanel();
-        // Opdracht 8 Verplaats naar Change Level
-/*        this.kochFractal.generateLeftEdge();
-        this.kochFractal.generateBottomEdge();
-        this.kochFractal.generateRightEdge();*/
 
         TimeStamp timeStamp = new TimeStamp();
         timeStamp.setBegin("Begin met tekenen.");
 
-        for(Edge edge : edgeList)
+        for(Edge edge : tempEdgeList)
         {
             this.application.drawEdge(edge);
         }
@@ -144,14 +117,17 @@ public class KochManager {
         @Override
         public synchronized void update(Observable o, Object arg)
         {
-            Edge edge = (Edge) arg;
+            final Edge edge = (Edge) arg;
             
             tempEdgeList.add(edge);
-
-            System.out.println("");
-            System.out.println("Edge " + tempEdgeList.size() + " coordinates:");
-            System.out.println("Start: " + edge.X2 + ", " + edge.Y2);
-            System.out.println("End: " + edge.X1 + ", " + edge.Y1);
+            
+            Platform.runLater(new Runnable(){
+                @Override
+                public void run() {
+                   application.drawEdge(edge);
+                }
+            });
+            
         }
     }
 }
