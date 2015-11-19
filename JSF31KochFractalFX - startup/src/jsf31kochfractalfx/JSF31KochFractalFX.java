@@ -52,11 +52,11 @@ public class JSF31KochFractalFX extends Application {
     private Label labelDraw;
     private Label labelDrawText;
     private Label labelProgressLeft;
-    private Label labelProgressLeftNrEdge;
+    private final Label labelProgressLeftNrEdge = new Label();
     private Label labelProgressBottom;
-    private Label labelProgressBottomNrEdge;
+    private final Label labelProgressBottomNrEdge = new Label();
     private Label labelProgressRight;
-    private Label labelProgressRightNrEdge;
+    private final Label labelProgressRightNrEdge = new Label();
     public ProgressBar ProgressBottomBar;
     public ProgressBar ProgressRightBar;
     public ProgressBar ProgressLeftBar;
@@ -171,7 +171,7 @@ public class JSF31KochFractalFX extends Application {
         
         // Labels progress Left
         labelProgressLeft = new Label("Progress Left:");
-        labelProgressLeftNrEdge = new Label("Nr. Edges:");
+        labelProgressLeftNrEdge.setText("Nr. Edges:");
         ProgressLeftBar = new ProgressBar();
         ProgressLeftBar.setProgress(0.0f);
         grid.add(labelProgressLeft, 0, 8, 4, 1);
@@ -181,7 +181,7 @@ public class JSF31KochFractalFX extends Application {
         
         // Labels progress Bottom
         labelProgressBottom = new Label("Progress Bottom:");
-        labelProgressBottomNrEdge = new Label("Nr. Edges:");
+        labelProgressBottomNrEdge.setText("Nr. Edges:");
         ProgressBottomBar = new ProgressBar();
         ProgressBottomBar.setProgress(0.0f);
         grid.add(labelProgressBottom, 0, 9, 4, 1); 
@@ -190,7 +190,7 @@ public class JSF31KochFractalFX extends Application {
         
         // Labels progress Right
         labelProgressRight = new Label("Progress Right:");
-        labelProgressRightNrEdge = new Label("Nr. Edges:");
+        labelProgressRightNrEdge.setText("Nr. Edges:");
         ProgressRightBar = new ProgressBar();
         ProgressRightBar.setProgress(0.0f);
         grid.add(labelProgressRight, 0, 10, 4, 1);
@@ -363,6 +363,17 @@ public class JSF31KochFractalFX extends Application {
                 e.color);
     }
 
+    public Label getlabelCountLeft(){
+        return labelProgressLeftNrEdge;
+    }
+    
+    public Label getlabelCountBottom(){
+        return labelProgressBottomNrEdge;
+    }
+        
+    public Label getlabelCountRight(){
+        return labelProgressRightNrEdge;
+    }
     /**
      * The main() method is ignored in correctly deployed JavaFX application.
      * main() serves only as fallback in case the application can not be

@@ -18,6 +18,9 @@ public class KochFractal extends Observable {
     private int nrOfEdges = 3;  // The number of edges in the current level of the fractal
     private float hue;          // Hue value of color for next edge
     private boolean cancelled;  // Flag to indicate that calculation has been cancelled 
+    private int rightEdgeNr = 1;
+    private int leftEdgeNr = 1;
+    private int bottomEdgeNr = 1;
 
     private void drawKochEdge(double ax, double ay, double bx, double by, int n) throws InterruptedException {
         sleep(1);
@@ -50,18 +53,21 @@ public class KochFractal extends Observable {
         hue = 0f;
         cancelled = false;
         drawKochEdge(0.5, 0.0, (1 - Math.sqrt(3.0) / 2.0) / 2, 0.75, level);
+        leftEdgeNr = (int) (Math.pow(4, level - 1));
     }
 
     public void generateBottomEdge() throws InterruptedException {
         hue = 1f / 3f;
         cancelled = false;
         drawKochEdge((1 - Math.sqrt(3.0) / 2.0) / 2, 0.75, (1 + Math.sqrt(3.0) / 2.0) / 2, 0.75, level);
+        bottomEdgeNr = (int) (Math.pow(4, level - 1));
     }
 
     public void generateRightEdge() throws InterruptedException {
         hue = 2f / 3f;
         cancelled = false;
         drawKochEdge((1 + Math.sqrt(3.0) / 2.0) / 2, 0.75, 0.5, 0.0, level);
+        rightEdgeNr = (int) (Math.pow(4, level - 1));
         
     }
     
@@ -81,4 +87,17 @@ public class KochFractal extends Observable {
     public int getNrOfEdges() {
         return nrOfEdges;
     }
+    
+    public String getNrRight(){
+        return "Nr. Edges: " + rightEdgeNr;
+    }
+    
+    public String getNrLeft(){
+        return "Nr. Edges: " + leftEdgeNr;
+    }
+    
+    public String getNrBottom(){
+        return "Nr. Edges: " + bottomEdgeNr;
+    }
+
 }

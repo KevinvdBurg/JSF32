@@ -70,6 +70,7 @@ public class KochManager {
                     kochFractal.generateLeftEdge();
                     
                     updateProgress(0, kochFractal.getNrOfEdges());
+                    updateMessage(kochFractal.getNrLeft());
                     return null;
                 }
             };
@@ -83,6 +84,7 @@ public class KochManager {
                     kochFractal.generateBottomEdge();
                     
                     updateProgress(0, kochFractal.getNrOfEdges());
+                    updateMessage(kochFractal.getNrBottom());
                     return null;
                 }
             };
@@ -94,6 +96,7 @@ public class KochManager {
                     kochFractal.generateRightEdge();
                     
                     updateProgress(0, kochFractal.getNrOfEdges());
+                    updateMessage(kochFractal.getNrRight());
                     return null;
                 }
             };
@@ -121,6 +124,9 @@ public class KochManager {
             application.ProgressBottomBar.progressProperty().bind(bottomTask.progressProperty());
             application.ProgressRightBar.progressProperty().bind(rightTask.progressProperty());
             application.ProgressLeftBar.progressProperty().bind(leftTask.progressProperty());
+            application.getlabelCountLeft().textProperty().bind(leftTask.messageProperty());
+            application.getlabelCountBottom().textProperty().bind(bottomTask.messageProperty());
+            application.getlabelCountRight().textProperty().bind(rightTask.messageProperty());
             
             tLeft = new Thread(leftTask);
             tBottom = new Thread(bottomTask);
@@ -132,7 +138,6 @@ public class KochManager {
             tRight.start();
             tDraw.start();
             
-            
         }
         catch(Exception e)
         {
@@ -143,9 +148,7 @@ public class KochManager {
     
     public KochFractal getNewKochFractal(int level)
     {
-        
         return kochFractal;
-        
     }
     
     public void drawEdges()
