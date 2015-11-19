@@ -54,6 +54,9 @@ public class KochFractal extends Observable {
         cancelled = false;
         drawKochEdge(0.5, 0.0, (1 - Math.sqrt(3.0) / 2.0) / 2, 0.75, level);
         leftEdgeNr = (int) (Math.pow(4, level - 1));
+        
+//        updateProgress(leftEdgeNr, nrOfEdges / 3);
+//        updateMessage(kochFractal.getNrLeft());
     }
 
     public void generateBottomEdge() throws InterruptedException {

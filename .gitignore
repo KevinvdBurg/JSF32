@@ -1,7 +1,8 @@
-nbproject/private/
-build/
-nbbuild/
-dist/
-nbdist/
-nbactions.xml
+JSF31KochFractalFX - startup/nbproject/private/
+JSF31KochFractalFX - startup/build/
+JSF31KochFractalFX - startup/nbbuild/
+JSF31KochFractalFX - startup/dist/
+JSF31KochFractalFX - startup/nbdist/
+JSF31KochFractalFX - startup/nbactions.xml
 .nb-gradle/
+
