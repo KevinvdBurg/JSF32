@@ -36,6 +36,9 @@ public class KochManager {
     private Thread tBottom = null;
     private Thread tDraw = null;
     
+    private double edgesL = 0;
+    private double edgesR = 0;
+    private double edgesB = 0;
     
     TimeStamp timeStamp;
     
@@ -65,11 +68,13 @@ public class KochManager {
             
             leftTask = new Task<Void>()
             {
+                
                 @Override 
                 public Void call() throws InterruptedException {
+                    edgesL++;
                     kochFractal.generateLeftEdge();
-                    
-                    updateProgress(0, kochFractal.getNrOfEdges());
+                    System.out.println("Left " + edgesL);
+                    updateProgress(edgesL, kochFractal.getNrOfEdges() / 3);
                     updateMessage(kochFractal.getNrLeft());
                     return null;
                 }
@@ -81,9 +86,10 @@ public class KochManager {
             {
                 @Override 
                 public Void call() throws InterruptedException {
+                    edgesB++;
                     kochFractal.generateBottomEdge();
-                    
-                    updateProgress(0, kochFractal.getNrOfEdges());
+                    System.out.println("Bottom " + edgesB);
+                    updateProgress(edgesB, kochFractal.getNrOfEdges() / 3);
                     updateMessage(kochFractal.getNrBottom());
                     return null;
                 }
@@ -93,9 +99,10 @@ public class KochManager {
             {
                 @Override 
                 public Void call() throws InterruptedException {
+                    edgesR++;
                     kochFractal.generateRightEdge();
-                    
-                    updateProgress(0, kochFractal.getNrOfEdges());
+                    System.out.println("Right " + edgesR);
+                    updateProgress(edgesR, kochFractal.getNrOfEdges() / 3);
                     updateMessage(kochFractal.getNrRight());
                     return null;
                 }
