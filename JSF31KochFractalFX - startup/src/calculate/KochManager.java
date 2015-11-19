@@ -72,23 +72,23 @@ public class KochManager {
                 @Override 
                 public Void call() throws InterruptedException {
                     
-                    edgesL++;
-                    kochFractal.generateLeftEdge();
-                    System.out.println("Left " + edgesL);
-                    updateProgress(edgesL, kochFractal.getNrOfEdges() / 3);
-                    updateMessage(kochFractal.getNrLeft());
-                    return null;
-                    
-//                    int maxEdges = kochFractal.getNrOfEdges() / 3;
-//                    for (int i = 1; i < maxEdges; i++)
-//                    {
-//                        kochFractal.generateLeftEdge();
-//                        System.out.println("Left " + i);
-//                        updateProgress(i, maxEdges);
-//                        updateMessage("Nr:" + i);
-//                    }
-//                    
+//                    edgesL++;
+//                    kochFractal.generateLeftEdge();
+//                    System.out.println("Left " + edgesL);
+//                    updateProgress(edgesL, kochFractal.getNrOfEdges() / 3);
+//                    updateMessage(kochFractal.getNrLeft());
 //                    return null;
+                    
+                    int maxEdges = kochFractal.getNrOfEdges() / 3;
+                    for (int i = 1; i < maxEdges; i++)
+                    {
+                        kochFractal.generateLeftEdge();
+                        System.out.println("Left " + kochFractal.getNrLeft());
+                        updateProgress(i, maxEdges);
+                        updateMessage("Nr: " + kochFractal.getNrLeft());
+                    }
+                    
+                    return null;
                 }
             };
             
@@ -98,23 +98,23 @@ public class KochManager {
             {
                 @Override 
                 public Void call() throws InterruptedException {
-                    edgesB++;
-                    kochFractal.generateBottomEdge();
-                    System.out.println("Bottom " + edgesB);
-                    updateProgress(edgesB, kochFractal.getNrOfEdges() / 3);
-                    updateMessage(kochFractal.getNrBottom());
-                    return null;
-                    
-//                    int maxEdges = kochFractal.getNrOfEdges() / 3;
-//                    for (int i = 1; i < maxEdges; i++)
-//                    {
-//                        kochFractal.generateBottomEdge();
-//                        System.out.println("Bottom " + i);
-//                        updateProgress(i, maxEdges);
-//                        updateMessage("Nr:" + i);
-//                    }
-//                    
+//                    edgesB++;
+//                    kochFractal.generateBottomEdge();
+//                    System.out.println("Bottom " + edgesB);
+//                    updateProgress(edgesB, kochFractal.getNrOfEdges() / 3);
+//                    updateMessage(kochFractal.getNrBottom());
 //                    return null;
+                    
+                    int maxEdges = kochFractal.getNrOfEdges() / 3;
+                    for (int i = 1; i < maxEdges; i++)
+                    {
+                        kochFractal.generateBottomEdge();
+                        System.out.println("Bottom " + kochFractal.getNrBottom());
+                        updateProgress(i, maxEdges);
+                        updateMessage("Nr: " + kochFractal.getNrBottom());
+                    }
+                    
+                    return null;
                     
                 }
             };
@@ -123,23 +123,23 @@ public class KochManager {
             {
                 @Override 
                 public Void call() throws InterruptedException {
-                    edgesR++;
-                    kochFractal.generateRightEdge();
-                    System.out.println("Right " + edgesR);
-                    updateProgress(edgesR, kochFractal.getNrOfEdges() / 3);
-                    updateMessage(kochFractal.getNrRight());
-                    return null;
-                    
-//                    int maxEdges = kochFractal.getNrOfEdges() / 3;
-//                    for (int i = 1; i < maxEdges; i++)
-//                    {
-//                        kochFractal.generateRightEdge();
-//                        System.out.println("Right " + i);
-//                        updateProgress(i, maxEdges);
-//                        updateMessage("Nr:" + i);
-//                    }
-//                    
+//                    edgesR++;
+//                    kochFractal.generateRightEdge();
+//                    System.out.println("Right " + edgesR);
+//                    updateProgress(edgesR, kochFractal.getNrOfEdges() / 3);
+//                    updateMessage(kochFractal.getNrRight());
 //                    return null;
+                    
+                    int maxEdges = kochFractal.getNrOfEdges() / 3;
+                    for (int i = 1; i < maxEdges; i++)
+                    {
+                        kochFractal.generateRightEdge();
+                        System.out.println("Right " + kochFractal.getNrRight());
+                        updateProgress(i, maxEdges);
+                        updateMessage("Nr: " + kochFractal.getNrRight());
+                    }
+                    
+                    return null;
                 }
             };
             
