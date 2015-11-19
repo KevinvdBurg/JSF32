@@ -61,13 +61,15 @@ public class KochManager {
             this.kochFractal.setLevel(nxt);
             
             timeStamp = new TimeStamp();
-            timeStamp.setBegin("Begin berekenen van edges.");
+            timeStamp.setBegin("Start berekenen");
             
             leftTask = new Task<Void>()
             {
                 @Override 
                 public Void call() throws InterruptedException {
                     kochFractal.generateLeftEdge();
+                    
+                    updateProgress(0, kochFractal.getNrOfEdges());
                     return null;
                 }
             };
@@ -79,6 +81,8 @@ public class KochManager {
                 @Override 
                 public Void call() throws InterruptedException {
                     kochFractal.generateBottomEdge();
+                    
+                    updateProgress(0, kochFractal.getNrOfEdges());
                     return null;
                 }
             };
@@ -88,6 +92,8 @@ public class KochManager {
                 @Override 
                 public Void call() throws InterruptedException {
                     kochFractal.generateRightEdge();
+                    
+                    updateProgress(0, kochFractal.getNrOfEdges());
                     return null;
                 }
             };
@@ -101,6 +107,11 @@ public class KochManager {
                     bottomTask.get();
                     
                     edgeList = tempEdgeList;
+                    
+                    timeStamp.setEnd("Stop berekenen");
+                    application.setTextCalc(timeStamp.toString());
+                    application.setTextNrEdges(edgeList.size()+"");
+                    
                     application.requestDrawEdges();
                     
                     return null;
@@ -141,14 +152,14 @@ public class KochManager {
     {
         application.clearKochPanel();
         TimeStamp timeStamp = new TimeStamp();
-        timeStamp.setBegin("Begin met tekenen.");
+        timeStamp.setBegin("Start tekenen");
 
         for(Edge edge : edgeList)
         {
             this.application.drawEdge(edge);
         }
         
-        timeStamp.setEnd("Klaar met tekenen!");
+        timeStamp.setEnd("Stop tekenen");
         this.application.setTextDraw(timeStamp.toString());
     }
     
@@ -159,7 +170,6 @@ public class KochManager {
         {
             final Edge edge = (Edge) arg;
             tempEdgeList.add(edge);
-            //System.out.println(edge);
             
             Platform.runLater(new Runnable(){
                 @Override
