@@ -5,6 +5,7 @@
  */
 package calculate;
 
+import static java.lang.Thread.sleep;
 import java.util.Observable;
 import java.util.Observer;
 import jsf31kochfractalfx.JSF31KochFractalFX;
@@ -12,6 +13,9 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.scene.paint.Color;
 
@@ -36,9 +40,6 @@ public class KochManager {
     private Thread tBottom = null;
     private Thread tDraw = null;
     
-    private double edgesL = 0;
-    private double edgesR = 0;
-    private double edgesB = 0;
     
     TimeStamp timeStamp;
     
@@ -57,140 +58,129 @@ public class KochManager {
     
     public void changeLevel(final int nxt)
     {
-        try
-        {
-            this.tempEdgeList = new ArrayList<Edge>();
-            
-            this.kochFractal.setLevel(nxt);
-            
-            timeStamp = new TimeStamp();
-            timeStamp.setBegin("Start berekenen");
-            
-            leftTask = new Task<Void>()
-            {
-                
-                @Override 
-                public Void call() throws InterruptedException {
-                    
-//                    edgesL++;
-//                    kochFractal.generateLeftEdge();
-//                    System.out.println("Left " + edgesL);
-//                    updateProgress(edgesL, kochFractal.getNrOfEdges() / 3);
-//                    updateMessage(kochFractal.getNrLeft());
-//                    return null;
-                    
-                    int maxEdges = kochFractal.getNrOfEdges() / 3;
-                    for (int i = 1; i < maxEdges; i++)
-                    {
-                        kochFractal.generateLeftEdge();
-                        System.out.println("Left " + kochFractal.getNrLeft());
-                        updateProgress(i, maxEdges);
-                        updateMessage("Nr: " + kochFractal.getNrLeft());
-                    }
-                    
-                    return null;
-                }
-            };
-            
-            
-            
-            bottomTask = new Task<Void>()
-            {
-                @Override 
-                public Void call() throws InterruptedException {
-//                    edgesB++;
-//                    kochFractal.generateBottomEdge();
-//                    System.out.println("Bottom " + edgesB);
-//                    updateProgress(edgesB, kochFractal.getNrOfEdges() / 3);
-//                    updateMessage(kochFractal.getNrBottom());
-//                    return null;
-                    
-                    int maxEdges = kochFractal.getNrOfEdges() / 3;
-                    for (int i = 1; i < maxEdges; i++)
-                    {
-                        kochFractal.generateBottomEdge();
-                        System.out.println("Bottom " + kochFractal.getNrBottom());
-                        updateProgress(i, maxEdges);
-                        updateMessage("Nr: " + kochFractal.getNrBottom());
-                    }
-                    
-                    return null;
-                    
-                }
-            };
-            
-            rightTask = new Task<Void>()
-            {
-                @Override 
-                public Void call() throws InterruptedException {
-//                    edgesR++;
-//                    kochFractal.generateRightEdge();
-//                    System.out.println("Right " + edgesR);
-//                    updateProgress(edgesR, kochFractal.getNrOfEdges() / 3);
-//                    updateMessage(kochFractal.getNrRight());
-//                    return null;
-                    
-                    int maxEdges = kochFractal.getNrOfEdges() / 3;
-                    for (int i = 1; i < maxEdges; i++)
-                    {
-                        kochFractal.generateRightEdge();
-                        System.out.println("Right " + kochFractal.getNrRight());
-                        updateProgress(i, maxEdges);
-                        updateMessage("Nr: " + kochFractal.getNrRight());
-                    }
-                    
-                    return null;
-                }
-            };
-            
-            drawTask = new Task<Void>()
-            {
-                @Override 
-                public Void call() throws InterruptedException, ExecutionException {
-                    rightTask.get();
-                    leftTask.get();
-                    bottomTask.get();
-                    
-                    edgeList = tempEdgeList;
-                    
-                    timeStamp.setEnd("Stop berekenen");
-                    application.setTextCalc(timeStamp.toString());
-                    application.setTextNrEdges(edgeList.size()+"");
-                    
-                    application.requestDrawEdges();
-                    
-                    return null;
-                }
-            };
+        this.tempEdgeList = new ArrayList<Edge>();
+        application.requestDrawEdges();
+        this.kochFractal.cancel();
 
-            application.ProgressBottomBar.progressProperty().bind(bottomTask.progressProperty());
-            application.ProgressRightBar.progressProperty().bind(rightTask.progressProperty());
-            application.ProgressLeftBar.progressProperty().bind(leftTask.progressProperty());
-            application.getlabelCountLeft().textProperty().bind(leftTask.messageProperty());
-            application.getlabelCountBottom().textProperty().bind(bottomTask.messageProperty());
-            application.getlabelCountRight().textProperty().bind(rightTask.messageProperty());
-            
-            tLeft = new Thread(leftTask);
-            tBottom = new Thread(bottomTask);
-            tRight = new Thread(rightTask);
-            tDraw = new Thread(drawTask);
-            
-            tLeft.start();
-            tBottom.start();
-            tRight.start();
-            tDraw.start();
-            
-        }
-        catch(Exception e)
+        this.kochFractal = new KochFractal();
+        this.kochFractal.setLevel(nxt);
+        
+        KochFractalObserver kochFractalObserver = new KochFractalObserver();//Create observer
+        this.kochFractal.addObserver(kochFractalObserver);//Add observer
+
+        timeStamp = new TimeStamp();
+        timeStamp.setBegin("Start berekenen");
+
+        leftTask = new Task<Void>()
         {
             
-        }
+            @Override 
+            public Void call() throws InterruptedException {
+                ObservableList edges = FXCollections.observableList(new ArrayList<Edge>());
+                edges.addListener(new ListChangeListener() {
+                    int numberOfEdges;
+                    @Override
+                    public void onChanged(ListChangeListener.Change change) {
+                        numberOfEdges++;
+                        updateProgress(numberOfEdges, kochFractal.getNrOfEdges()/3);
+                        application.setLeftEdgeNr(numberOfEdges);
+                    }
+                });
+                
+                updateProgress(0, kochFractal.getNrOfEdges());
+                kochFractal.generateLeftEdge(edges);
+                return null;
+            }
+        };
+
+        bottomTask = new Task<Void>()
+        {
+            
+            @Override 
+            public Void call() throws InterruptedException {
+                ObservableList edges = FXCollections.observableList(new ArrayList<Edge>());
+                edges.addListener(new ListChangeListener() {
+                    int numberOfEdges;
+                    @Override
+                    public void onChanged(ListChangeListener.Change change) {
+                        numberOfEdges++;
+                        updateProgress(numberOfEdges, kochFractal.getNrOfEdges()/3);
+                        application.setBottomEdgeNr(numberOfEdges);
+                    }
+                });
+                
+                updateProgress(0, kochFractal.getNrOfEdges());
+                kochFractal.generateBottomEdge(edges);
+                return null;
+            }
+        };
+
+        rightTask = new Task<Void>()
+        {
+            
+            @Override 
+            public Void call() throws InterruptedException {
+                ObservableList edges = FXCollections.observableList(new ArrayList<Edge>());
+                edges.addListener(new ListChangeListener() {
+                    int numberOfEdges;
+                    @Override
+                    public void onChanged(ListChangeListener.Change change) {
+                        numberOfEdges++;
+                        updateProgress(numberOfEdges, kochFractal.getNrOfEdges()/3);
+                        application.setRightEdgeNr(numberOfEdges);
+                    }
+                });
+                
+                updateProgress(0, kochFractal.getNrOfEdges());
+                kochFractal.generateRightEdge(edges);
+                return null;
+            }
+        };
+
+        drawTask = new Task<Void>()
+        {
+            @Override 
+            public Void call() throws InterruptedException, ExecutionException {
+                rightTask.get();
+                leftTask.get();
+                bottomTask.get();
+
+                if(kochFractal.isCancelled())
+                    return null;
+
+                edgeList = tempEdgeList;
+
+                timeStamp.setEnd("Stop berekenen");
+                application.setTextCalc(timeStamp.toString());
+                application.setTextNrEdges(edgeList.size()+"");
+
+                application.requestDrawEdges();
+
+                return null;
+            }
+        };
+
+        application.ProgressBottomBar.progressProperty().bind(bottomTask.progressProperty());
+        application.ProgressRightBar.progressProperty().bind(rightTask.progressProperty());
+        application.ProgressLeftBar.progressProperty().bind(leftTask.progressProperty());
+
+        tLeft = new Thread(leftTask);
+        tBottom = new Thread(bottomTask);
+        tRight = new Thread(rightTask);
+        tDraw = new Thread(drawTask);
+
+        tLeft.start();
+        tBottom.start();
+        tRight.start();
+        tDraw.start();
 
     }
     
     public KochFractal getNewKochFractal(int level)
     {
+        
         return kochFractal;
+        
     }
     
     public void drawEdges()

@@ -6,6 +6,7 @@ package jsf31kochfractalfx;
 
 import calculate.*;
 import javafx.application.Application;
+import static javafx.application.Application.launch;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -256,6 +257,36 @@ public class JSF31KochFractalFX extends Application {
         });
     }
     
+    public void setLeftEdgeNr(final int text) {
+        
+        Platform.runLater(new Runnable(){
+            @Override
+            public void run() {
+                labelProgressLeftNrEdge.setText("Nr. Edges: " + text);
+            }
+        });
+    }
+    
+    public void setBottomEdgeNr(final int text) {
+        
+        Platform.runLater(new Runnable(){
+            @Override
+            public void run() {
+                labelProgressBottomNrEdge.setText("Nr. Edges: " + text);
+            }
+        });
+    }
+    
+    public void setRightEdgeNr(final int text) {
+        
+        Platform.runLater(new Runnable(){
+            @Override
+            public void run() {
+                labelProgressRightNrEdge.setText("Nr. Edges: " + text);
+            }
+        });
+    }
+    
     public void setTextCalc(final String text) {
         
         Platform.runLater(new Runnable(){
@@ -281,16 +312,12 @@ public class JSF31KochFractalFX extends Application {
             @Override
             public void run() {
                 kochManager.drawEdges();
-                buttonIncreaseLevel.setDisable(false);
-                buttonDecreaseLevel.setDisable(false);
             }
         });
     }
     
     private void increaseLevelButtonActionPerformed(ActionEvent event) {
         if (currentLevel < 12) {
-            buttonIncreaseLevel.setDisable(true);
-            buttonDecreaseLevel.setDisable(true);
             
             // resetZoom();
             currentLevel++;
@@ -301,8 +328,6 @@ public class JSF31KochFractalFX extends Application {
     
     private void decreaseLevelButtonActionPerformed(ActionEvent event) {
         if (currentLevel > 1) {
-            buttonIncreaseLevel.setDisable(true);
-            buttonDecreaseLevel.setDisable(true);
             
             // resetZoom();
             currentLevel--;
