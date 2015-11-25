@@ -5,6 +5,18 @@
 package jsf31kochfractalfx;
 
 import calculate.*;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.util.Scanner;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
 import javafx.application.Platform;
@@ -21,16 +33,17 @@ import javafx.scene.input.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import java.io.*;
-import java.util.*;
-import java.util.logging.*;
+
 /**
  *
  * @author Nico Kuijpers
  */
 public class JSF31KochFractalFX extends Application {
     
-    private boolean gui = false;
+    private boolean gui = true;
+    private String binaryFilePath = "binaryKoch.ser";
+    private String textFilePath = "textKoch.txt";
+    
     // Zoom and drag
     private double zoomTranslateX = 0.0;
     private double zoomTranslateY = 0.0;
@@ -75,7 +88,7 @@ public class JSF31KochFractalFX extends Application {
     Button buttonDecreaseLevel;
     
     @Override
-    public void start(Stage primaryStage) throws IOException {
+    public void start(Stage primaryStage) throws IOException, ClassNotFoundException {
         
         // Define grid pane
         GridPane grid;
@@ -123,6 +136,7 @@ public class JSF31KochFractalFX extends Application {
                 increaseLevelButtonActionPerformed(event);
             }
         });
+        buttonIncreaseLevel.setVisible(false);
         grid.add(buttonIncreaseLevel, 3, 6);
 
         // Button to decrease level of Koch fractal
@@ -134,6 +148,7 @@ public class JSF31KochFractalFX extends Application {
                 decreaseLevelButtonActionPerformed(event);
             }
         });
+        buttonDecreaseLevel.setVisible(false);
         grid.add(buttonDecreaseLevel, 5, 6);
         
         // Button to fit Koch fractal in Koch panel
@@ -205,7 +220,6 @@ public class JSF31KochFractalFX extends Application {
         // Create Koch manager and set initial level
         resetZoom();
         kochManager = new KochManager(this);
-        kochManager.changeLevel(currentLevel);
         
         // Create the scene and add the grid pane
         Group root = new Group();
@@ -216,7 +230,10 @@ public class JSF31KochFractalFX extends Application {
         primaryStage.setTitle("Koch Fractal");
         primaryStage.setScene(scene);
         if(gui)
+        {
             primaryStage.show();
+            readBinary();
+        }
         else
             requestKochFractal();
     }
@@ -230,6 +247,29 @@ public class JSF31KochFractalFX extends Application {
         
         this.kochManager.changeLevel(level);
     }
+    
+    public void readBinary() throws IOException, ClassNotFoundException
+    {
+        KochData sContent=null;
+        byte [] buffer =null;
+        File a_file = new File(binaryFilePath);
+        try
+        {
+            FileInputStream fis = new FileInputStream(binaryFilePath);
+            int length = (int)a_file.length();
+            buffer = new byte [length];
+            fis.read(buffer);
+            fis.close();
+        }
+        catch(IOException e)
+        {
+            e.printStackTrace();
+        }
+        ByteArrayInputStream bis = new ByteArrayInputStream(buffer);
+        ObjectInput in = new ObjectInputStream(bis);
+        sContent = (KochData)in.readObject();
+    }
+    
     
     public void clearKochPanel() {
         GraphicsContext gc = kochPanel.getGraphicsContext2D();
@@ -436,7 +476,7 @@ public class JSF31KochFractalFX extends Application {
         
        //serialize the List
         try (
-          OutputStream file = new FileOutputStream("EdgesBinary.ser");
+          OutputStream file = new FileOutputStream(binaryFilePath);
           OutputStream buffer = new BufferedOutputStream(file);
           ObjectOutput output = new ObjectOutputStream(buffer);
         ){
