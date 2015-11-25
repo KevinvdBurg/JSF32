@@ -40,6 +40,8 @@ public class KochManager {
     private Thread tBottom = null;
     private Thread tDraw = null;
     
+    private int count;
+    
     
     TimeStamp timeStamp;
     
@@ -61,7 +63,15 @@ public class KochManager {
         this.tempEdgeList = new ArrayList<Edge>();
         application.requestDrawEdges();
         this.kochFractal.cancel();
+        
+        if(this.leftTask != null && this.leftTask.isRunning())
+            this.leftTask.cancel();
+        if(this.rightTask != null && this.rightTask.isRunning())
+            this.rightTask.cancel();
+        if(this.bottomTask != null && this.bottomTask.isRunning())
+            this.bottomTask.cancel();
 
+        this.count = 0;
         this.kochFractal = new KochFractal();
         this.kochFractal.setLevel(nxt);
         
@@ -91,6 +101,12 @@ public class KochManager {
                 kochFractal.generateLeftEdge(edges);
                 return null;
             }
+            
+            @Override 
+            protected void done()
+            {
+                edgesCalculated();
+            }
         };
 
         bottomTask = new Task<Void>()
@@ -112,6 +128,12 @@ public class KochManager {
                 updateProgress(0, kochFractal.getNrOfEdges());
                 kochFractal.generateBottomEdge(edges);
                 return null;
+            }
+            
+            @Override 
+            protected void done()
+            {
+                edgesCalculated();
             }
         };
 
@@ -135,28 +157,11 @@ public class KochManager {
                 kochFractal.generateRightEdge(edges);
                 return null;
             }
-        };
-
-        drawTask = new Task<Void>()
-        {
+            
             @Override 
-            public Void call() throws InterruptedException, ExecutionException {
-                rightTask.get();
-                leftTask.get();
-                bottomTask.get();
-
-                if(kochFractal.isCancelled())
-                    return null;
-
-                edgeList = tempEdgeList;
-
-                timeStamp.setEnd("Stop berekenen");
-                application.setTextCalc(timeStamp.toString());
-                application.setTextNrEdges(edgeList.size()+"");
-
-                application.requestDrawEdges();
-
-                return null;
+            protected void done()
+            {
+                edgesCalculated();
             }
         };
 
@@ -174,6 +179,23 @@ public class KochManager {
         tRight.start();
         tDraw.start();
 
+    }
+
+    public void edgesCalculated()
+    {
+        count++;
+        System.out.println("requestDraw:" + count);
+        if(count != 3 || kochFractal.isCancelled())
+            return;
+        System.out.println("Draw");
+
+        edgeList = tempEdgeList;
+
+        timeStamp.setEnd("Stop berekenen");
+        application.setTextCalc(timeStamp.toString());
+        application.setTextNrEdges(edgeList.size()+"");
+
+        application.requestDrawEdges();
     }
     
     public KochFractal getNewKochFractal(int level)
