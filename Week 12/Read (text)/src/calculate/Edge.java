@@ -11,7 +11,7 @@ import javafx.scene.paint.Color;
  *
  * @author Peter Boots
  */
-public class Edge {
+public class Edge implements java.io.Serializable{
     public double X1, Y1, X2, Y2;
     public Color color;
     

@@ -29,6 +29,8 @@ public class KochManager {
     private List<Edge> edgeList; 
     private List<Edge> tempEdgeList; 
     private KochFractal kochFractal;
+
+
     
     private Task<Void> rightTask = null;
     private Task<Void> leftTask = null;
@@ -242,5 +244,10 @@ public class KochManager {
     public List<Edge> getEdgeList()
     {
         return edgeList;
+    }
+    
+    public KochFractal getKochFractal()
+    {
+        return kochFractal;
     }
 }

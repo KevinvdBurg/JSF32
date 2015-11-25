@@ -5,8 +5,6 @@
 package jsf31kochfractalfx;
 
 import calculate.*;
-import java.io.IOException;
-import java.util.Scanner;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
 import javafx.application.Platform;
@@ -23,7 +21,9 @@ import javafx.scene.input.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-
+import java.io.*;
+import java.util.*;
+import java.util.logging.*;
 /**
  *
  * @author Nico Kuijpers
@@ -432,8 +432,20 @@ public class JSF31KochFractalFX extends Application {
 
     private void writeEdgesToBinary()
     {
-        kochManager.getEdgeList();
+        KochData kd = new KochData(kochManager.getEdgeList(), kochManager.getKochFractal());
         
+       //serialize the List
+        try (
+          OutputStream file = new FileOutputStream("EdgesBinary.ser");
+          OutputStream buffer = new BufferedOutputStream(file);
+          ObjectOutput output = new ObjectOutputStream(buffer);
+        ){
+          output.writeObject(kd);
+        }  
+        catch(IOException ex){
+            System.err.println("Cannot perform output." + ex);
+        }
+
     }
 
     private void writeEdgesToText()
