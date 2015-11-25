@@ -27,7 +27,6 @@ public class KochFractal extends Observable {
             if (n == 1) {
                 hue = hue + 1.0f / nrOfEdges;
                 Edge e = new Edge(ax, ay, bx, by, Color.hsb(hue*360.0, 1.0, 1.0));
-                
                 synchronized (this)
                 {
                     edges.add(e);
@@ -41,6 +40,7 @@ public class KochFractal extends Observable {
                 double cy = Math.sin(angle) * distabdiv3 + (by - ay) / 3 + ay;
                 final double midabx = (bx - ax) / 3 + ax;
                 final double midaby = (by - ay) / 3 + ay;
+                
                 drawKochEdge(ax, ay, midabx, midaby, n - 1, sleep, edges);
                 drawKochEdge(midabx, midaby, cx, cy, n - 1, sleep, edges);
                 drawKochEdge(cx, cy, (midabx + bx) / 2, (midaby + by) / 2, n - 1, sleep, edges);

@@ -238,4 +238,9 @@ public class KochManager {
             
         }
     }
+    
+    public List<Edge> getEdgeList()
+    {
+        return edgeList;
+    }
 }

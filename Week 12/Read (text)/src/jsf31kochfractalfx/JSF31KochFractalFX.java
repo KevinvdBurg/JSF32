@@ -5,6 +5,8 @@
 package jsf31kochfractalfx;
 
 import calculate.*;
+import java.io.IOException;
+import java.util.Scanner;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
 import javafx.application.Platform;
@@ -28,6 +30,7 @@ import javafx.stage.Stage;
  */
 public class JSF31KochFractalFX extends Application {
     
+    private boolean gui = false;
     // Zoom and drag
     private double zoomTranslateX = 0.0;
     private double zoomTranslateY = 0.0;
@@ -72,7 +75,7 @@ public class JSF31KochFractalFX extends Application {
     Button buttonDecreaseLevel;
     
     @Override
-    public void start(Stage primaryStage) {
+    public void start(Stage primaryStage) throws IOException {
         
         // Define grid pane
         GridPane grid;
@@ -212,7 +215,20 @@ public class JSF31KochFractalFX extends Application {
         // Define title and assign the scene for main window
         primaryStage.setTitle("Koch Fractal");
         primaryStage.setScene(scene);
-        primaryStage.show();
+        if(gui)
+            primaryStage.show();
+        else
+            requestKochFractal();
+    }
+    
+    public void requestKochFractal() throws IOException
+    {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println();
+        System.out.print("insert kochfractal level: ");
+        int level = scanner.nextInt();
+        
+        this.kochManager.changeLevel(level);
     }
     
     public void clearKochPanel() {
@@ -307,7 +323,10 @@ public class JSF31KochFractalFX extends Application {
         });
     }
     
+    
     public void requestDrawEdges() {
+        writeEdgesToBinary();
+        writeEdgesToText();
         Platform.runLater(new Runnable(){
             @Override
             public void run() {
@@ -409,5 +428,16 @@ public class JSF31KochFractalFX extends Application {
      */
     public static void main(String[] args) {
         launch(args);
+    }
+
+    private void writeEdgesToBinary()
+    {
+        kochManager.getEdgeList();
+        
+    }
+
+    private void writeEdgesToText()
+    {
+        
     }
 }
