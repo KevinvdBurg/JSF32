@@ -6,3 +6,6 @@ JSF31KochFractalFX - startup/nbdist/
 JSF31KochFractalFX - startup/nbactions.xml
 .nb-gradle/
 
+/Week 12/build/
+/Week 12/dist/
+/Week 12/nbproject/private/
