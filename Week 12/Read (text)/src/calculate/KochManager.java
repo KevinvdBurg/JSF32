@@ -17,7 +17,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
-import javafx.scene.paint.Color;
 
 /**
  *
@@ -233,7 +232,7 @@ public class KochManager {
             Platform.runLater(new Runnable(){
                 @Override
                 public void run() {
-                   Edge e = new Edge(edge.X1,edge.Y1,edge.X2,edge.Y2, Color.WHITE);
+                   Edge e = new Edge(edge.X1,edge.Y1,edge.X2,edge.Y2, 1.0, 1.0, 1.0); //Color is White
                    application.drawEdge(e);
                 }
             });

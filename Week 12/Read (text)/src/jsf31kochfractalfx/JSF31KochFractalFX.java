@@ -40,7 +40,7 @@ import javafx.stage.Stage;
  */
 public class JSF31KochFractalFX extends Application {
     
-    private boolean gui = true;
+    private boolean gui = false;
     private String binaryFilePath = "binaryKoch.ser";
     private String textFilePath = "textKoch.txt";
     
@@ -253,21 +253,24 @@ public class JSF31KochFractalFX extends Application {
         KochData sContent=null;
         byte [] buffer =null;
         File a_file = new File(binaryFilePath);
-        try
-        {
-            FileInputStream fis = new FileInputStream(binaryFilePath);
-            int length = (int)a_file.length();
-            buffer = new byte [length];
-            fis.read(buffer);
-            fis.close();
+        
+        if(a_file.exists() && !a_file.isDirectory()) { 
+            try
+            {
+                FileInputStream fis = new FileInputStream(binaryFilePath);
+                int length = (int)a_file.length();
+                buffer = new byte [length];
+                fis.read(buffer);
+                fis.close();
+            }
+            catch(IOException e)
+            {
+                e.printStackTrace();
+            }
+            ByteArrayInputStream bis = new ByteArrayInputStream(buffer);
+            ObjectInput in = new ObjectInputStream(bis);
+            sContent = (KochData)in.readObject();
         }
-        catch(IOException e)
-        {
-            e.printStackTrace();
-        }
-        ByteArrayInputStream bis = new ByteArrayInputStream(buffer);
-        ObjectInput in = new ObjectInputStream(bis);
-        sContent = (KochData)in.readObject();
     }
     
     
@@ -286,7 +289,7 @@ public class JSF31KochFractalFX extends Application {
         Edge e1 = edgeAfterZoomAndDrag(e);
         
         // Set line color
-        gc.setStroke(e1.color);
+        gc.setStroke(e1.getColor());
         
         // Set line width depending on level
         if (currentLevel <= 3) {
@@ -444,7 +447,9 @@ public class JSF31KochFractalFX extends Application {
                 e.Y1 * zoom + zoomTranslateY,
                 e.X2 * zoom + zoomTranslateX,
                 e.Y2 * zoom + zoomTranslateY,
-                e.color);
+                e.hue,
+                e.saturation,
+                e.brightness);
     }
 
     public Label getlabelCountLeft(){

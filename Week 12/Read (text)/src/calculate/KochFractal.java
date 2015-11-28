@@ -8,7 +8,6 @@ import static java.lang.Thread.sleep;
 import java.util.List;
 import java.util.Observable;
 import java.util.Random;
-import javafx.scene.paint.Color;
 
 /**
  *
@@ -26,7 +25,7 @@ public class KochFractal extends Observable implements java.io.Serializable{
         if (!cancelled) {
             if (n == 1) {
                 hue = hue + 1.0f / nrOfEdges;
-                Edge e = new Edge(ax, ay, bx, by, Color.hsb(hue*360.0, 1.0, 1.0));
+                Edge e = new Edge(ax, ay, bx, by, hue*360.0, 1.0, 1.0);
                 synchronized (this)
                 {
                     edges.add(e);
