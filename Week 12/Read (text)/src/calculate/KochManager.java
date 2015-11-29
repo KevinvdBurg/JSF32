@@ -191,12 +191,9 @@ public class KochManager {
         System.out.println("Draw");
 
         edgeList = tempEdgeList;
-
-        timeStamp.setEnd("Stop berekenen");
-        application.setTextCalc(timeStamp.toString());
-        application.setTextNrEdges(edgeList.size()+"");
-
-        application.requestDrawEdges();
+        
+        application.writeEdgesToBinary();
+        application.writeEdgesToText();
     }
     
     public KochFractal getNewKochFractal(int level)
@@ -248,5 +245,13 @@ public class KochManager {
     public KochFractal getKochFractal()
     {
         return kochFractal;
+    }
+
+    public void setEdgeList(List<Edge> edgeList) {
+        this.edgeList = edgeList;
+    }
+
+    public void setKochFractal(KochFractal kochFractal) {
+        this.kochFractal = kochFractal;
     }
 }

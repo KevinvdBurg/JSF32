@@ -40,7 +40,7 @@ import javafx.stage.Stage;
  */
 public class JSF31KochFractalFX extends Application {
     
-    private boolean gui = false;
+    private boolean gui = true;
     private String binaryFilePath = "binaryKoch.ser";
     private String textFilePath = "textKoch.txt";
     
@@ -229,10 +229,23 @@ public class JSF31KochFractalFX extends Application {
         // Define title and assign the scene for main window
         primaryStage.setTitle("Koch Fractal");
         primaryStage.setScene(scene);
-        if(gui)
+        
+        
+        Scanner scanner = new Scanner(System.in);
+        System.out.println();
+        System.out.print("Insert 1 for read and 0 for write: ");
+        int mode = scanner.nextInt();
+        if(mode == 1)
         {
+            System.out.println();
+            System.out.print("Insert 1 for binary and 0 for text: ");
+            mode = scanner.nextInt();
+            if(mode == 1)
+                readBinary();
+            else
+                readText();
+            
             primaryStage.show();
-            readBinary();
         }
         else
             requestKochFractal();
@@ -246,6 +259,11 @@ public class JSF31KochFractalFX extends Application {
         int level = scanner.nextInt();
         
         this.kochManager.changeLevel(level);
+    }
+    
+    public void readText() throws IOException, ClassNotFoundException
+    {
+    
     }
     
     public void readBinary() throws IOException, ClassNotFoundException
@@ -270,7 +288,35 @@ public class JSF31KochFractalFX extends Application {
             ByteArrayInputStream bis = new ByteArrayInputStream(buffer);
             ObjectInput in = new ObjectInputStream(bis);
             sContent = (KochData)in.readObject();
+            
+            this.kochManager.setEdgeList(sContent.getEdges());
+            this.kochManager.setKochFractal(sContent.getFractal());
+            this.requestDrawEdges();
         }
+    }
+
+    public void writeEdgesToBinary()
+    {
+        KochData kd = new KochData(kochManager.getEdgeList(), kochManager.getKochFractal());
+        
+       //serialize the List
+        try (
+          OutputStream file = new FileOutputStream(binaryFilePath);
+          OutputStream buffer = new BufferedOutputStream(file);
+          ObjectOutput output = new ObjectOutputStream(buffer);
+        ){
+          output.writeObject(kd);
+        }  
+        catch(IOException ex){
+            System.err.println("Cannot perform output." + ex);
+        }
+        System.out.println("Wrote to binary.");
+
+    }
+
+    public void writeEdgesToText()
+    {
+        System.out.println("Wrote to text.");
     }
     
     
@@ -368,8 +414,6 @@ public class JSF31KochFractalFX extends Application {
     
     
     public void requestDrawEdges() {
-        writeEdgesToBinary();
-        writeEdgesToText();
         Platform.runLater(new Runnable(){
             @Override
             public void run() {
@@ -473,28 +517,5 @@ public class JSF31KochFractalFX extends Application {
      */
     public static void main(String[] args) {
         launch(args);
-    }
-
-    private void writeEdgesToBinary()
-    {
-        KochData kd = new KochData(kochManager.getEdgeList(), kochManager.getKochFractal());
-        
-       //serialize the List
-        try (
-          OutputStream file = new FileOutputStream(binaryFilePath);
-          OutputStream buffer = new BufferedOutputStream(file);
-          ObjectOutput output = new ObjectOutputStream(buffer);
-        ){
-          output.writeObject(kd);
-        }  
-        catch(IOException ex){
-            System.err.println("Cannot perform output." + ex);
-        }
-
-    }
-
-    private void writeEdgesToText()
-    {
-        
     }
 }
