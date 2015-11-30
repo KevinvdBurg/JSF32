@@ -13,7 +13,6 @@ import javafx.scene.paint.Color;
  */
 public class Edge implements java.io.Serializable{
     public double X1, Y1, X2, Y2;
-    //public Color color;
     
     public double hue;
     public double saturation;

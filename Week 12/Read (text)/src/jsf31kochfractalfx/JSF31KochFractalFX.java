@@ -321,6 +321,8 @@ public class JSF31KochFractalFX extends Application {
     public void writeEdgesToTextBuffered()
     {
         KochData kd = new KochData(kochManager.getEdgeList(), kochManager.getKochFractal());
+        
+        
         FileWriter fw = null;
         try {
             File file = new File(bufferedTextFilePath);
@@ -331,6 +333,7 @@ public class JSF31KochFractalFX extends Application {
             
             fw = new FileWriter(file.getAbsoluteFile());
             BufferedWriter bw = new BufferedWriter(fw);
+            
             for(Edge edge : kochManager.getEdgeList())
             {
                 bw.write(edge.toString());
