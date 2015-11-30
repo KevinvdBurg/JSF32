@@ -18,6 +18,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.Base64;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -48,8 +50,10 @@ import org.apache.commons.lang.StringUtils;
 public class JSF31KochFractalFX extends Application {
     
     private String binaryFilePath = "binaryKoch.ser";
+    private String notBufferedbinaryFilePath = "binaryKochNotBuffered.ser";
     private String textFilePath = "textKoch.txt";
     private String bufferedTextFilePath = "textKochBuffered.txt";
+    private String notBufferedTextFilePath = "textKochNotBuffered.txt";
     
     // Zoom and drag
     private double zoomTranslateX = 0.0;
@@ -318,7 +322,23 @@ public class JSF31KochFractalFX extends Application {
             System.err.println("Cannot perform output." + ex);
         }
         System.out.println("Wrote to binary.");
-
+    }
+    
+    public void writeEdgesToBinaryNotBufferd()
+    {
+        KochData kd = new KochData(kochManager.getEdgeList(), kochManager.getKochFractal());
+        
+       //serialize the List
+        try (
+          OutputStream file = new FileOutputStream(notBufferedbinaryFilePath);
+          ObjectOutput output = new ObjectOutputStream(file);
+        ){
+          output.writeObject(kd);
+        }  
+        catch(IOException ex){
+            System.err.println("Cannot perform output." + ex);
+        }
+        System.out.println("Wrote to binary not bufferd.");
     }
 
     public void writeEdgesToTextBuffered()
@@ -336,21 +356,41 @@ public class JSF31KochFractalFX extends Application {
             
             fw = new FileWriter(file.getAbsoluteFile());
             BufferedWriter bw = new BufferedWriter(fw);
-            
-<<<<<<< HEAD
-            for(Edge edge : kochManager.getEdgeList())
-            {
-                bw.write(edge.toString());
-                bw.newLine();
-            }   
-=======
+  
             byte[] serialized = SerializationUtils.serialize(kd);
             bw.write(new String(Base64.getEncoder().encodeToString(serialized)));
             
->>>>>>> origin/master
+
             bw.close();
             fw.close();
             System.out.println("Wrote buffered to text.");
+        } catch (IOException ex) {
+            Logger.getLogger(JSF31KochFractalFX.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+     public void writeEdgesToTextNotBuffered()
+    {
+        KochData kd = new KochData(kochManager.getEdgeList(), kochManager.getKochFractal());
+        
+        
+        FileWriter fw = null;
+        try {
+            File file = new File(notBufferedTextFilePath);
+            // if file doesnt exists, then create it
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            
+            OutputStream os = new FileOutputStream(file.getAbsoluteFile());
+            Writer w = new OutputStreamWriter(os);
+  
+            byte[] serialized = SerializationUtils.serialize(kd);
+            w.write(new String(Base64.getEncoder().encodeToString(serialized)));
+
+            w.close();
+            fw.close();
+            System.out.println("Wrote Not buffered to text.");
         } catch (IOException ex) {
             Logger.getLogger(JSF31KochFractalFX.class.getName()).log(Level.SEVERE, null, ex);
         }

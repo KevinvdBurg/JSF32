@@ -194,6 +194,8 @@ public class KochManager {
         
         application.writeEdgesToBinary();
         application.writeEdgesToTextBuffered();
+        application.writeEdgesToBinaryNotBufferd();
+        application.writeEdgesToTextNotBuffered();
         System.exit(0);
     }
     
