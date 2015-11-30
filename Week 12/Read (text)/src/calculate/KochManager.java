@@ -192,9 +192,10 @@ public class KochManager {
 
         edgeList = tempEdgeList;
         
-        application.writeEdgesToBinary();
-        application.writeEdgesToTextBuffered();
+        application.writeEdgesToBinaryBufferd();
         application.writeEdgesToBinaryNotBufferd();
+        
+        application.writeEdgesToTextBuffered();
         application.writeEdgesToTextNotBuffered();
         System.exit(0);
     }
