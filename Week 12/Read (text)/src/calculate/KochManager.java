@@ -193,7 +193,8 @@ public class KochManager {
         edgeList = tempEdgeList;
         
         application.writeEdgesToBinary();
-        application.writeEdgesToText();
+        application.writeEdgesToTextBuffered();
+        System.exit(0);
     }
     
     public KochFractal getNewKochFractal(int level)

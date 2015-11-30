@@ -6,10 +6,12 @@ package jsf31kochfractalfx;
 
 import calculate.*;
 import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectInputStream;
@@ -17,6 +19,8 @@ import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
 import javafx.application.Platform;
@@ -40,9 +44,9 @@ import javafx.stage.Stage;
  */
 public class JSF31KochFractalFX extends Application {
     
-    private boolean gui = true;
     private String binaryFilePath = "binaryKoch.ser";
     private String textFilePath = "textKoch.txt";
+    private String bufferedTextFilePath = "textKochBuffered.txt";
     
     // Zoom and drag
     private double zoomTranslateX = 0.0;
@@ -314,9 +318,30 @@ public class JSF31KochFractalFX extends Application {
 
     }
 
-    public void writeEdgesToText()
+    public void writeEdgesToTextBuffered()
     {
-        System.out.println("Wrote to text.");
+        KochData kd = new KochData(kochManager.getEdgeList(), kochManager.getKochFractal());
+        FileWriter fw = null;
+        try {
+            File file = new File(bufferedTextFilePath);
+            // if file doesnt exists, then create it
+            if (!file.exists()) {
+                file.createNewFile();
+            }   
+            
+            fw = new FileWriter(file.getAbsoluteFile());
+            BufferedWriter bw = new BufferedWriter(fw);
+            for(Edge edge : kochManager.getEdgeList())
+            {
+                bw.write(edge.toString());
+                bw.newLine();
+            }   
+            bw.close();
+            fw.close();
+            System.out.println("Wrote buffered to text.");
+        } catch (IOException ex) {
+            Logger.getLogger(JSF31KochFractalFX.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     
