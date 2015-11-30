@@ -18,6 +18,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.util.Base64;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -37,6 +38,8 @@ import javafx.scene.input.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import org.apache.commons.lang.SerializationUtils;
+import org.apache.commons.lang.StringUtils;
 
 /**
  *
@@ -329,16 +332,22 @@ public class JSF31KochFractalFX extends Application {
             // if file doesnt exists, then create it
             if (!file.exists()) {
                 file.createNewFile();
-            }   
+            }
             
             fw = new FileWriter(file.getAbsoluteFile());
             BufferedWriter bw = new BufferedWriter(fw);
             
+<<<<<<< HEAD
             for(Edge edge : kochManager.getEdgeList())
             {
                 bw.write(edge.toString());
                 bw.newLine();
             }   
+=======
+            byte[] serialized = SerializationUtils.serialize(kd);
+            bw.write(new String(Base64.getEncoder().encodeToString(serialized)));
+            
+>>>>>>> origin/master
             bw.close();
             fw.close();
             System.out.println("Wrote buffered to text.");
