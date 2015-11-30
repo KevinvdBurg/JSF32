@@ -6,11 +6,13 @@ package jsf31kochfractalfx;
 
 import calculate.*;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -251,11 +253,24 @@ public class JSF31KochFractalFX extends Application {
             System.out.println();
             System.out.print("Insert 1 for binary and 0 for text: ");
             mode = scanner.nextInt();
+            System.out.println();
+            System.out.print("Insert 1 for buffered and 0 for not buffered: ");
             if(mode == 1)
-                readBinary();
+            {
+                mode = scanner.nextInt();
+                if(mode == 1)
+                    return;  
+                else
+                    readBinaryNotBuffered();
+            }
             else
-                readText();
-            
+            {
+                mode = scanner.nextInt();
+                if(mode == 1)
+                    readText();
+                else
+                  return;  
+            }
             primaryStage.show();
         }
         else
@@ -274,10 +289,31 @@ public class JSF31KochFractalFX extends Application {
     
     public void readText() throws IOException, ClassNotFoundException
     {
-    
+        BufferedReader reader = null;
+
+        try {
+            File file = new File(bufferedTextFilePath);
+            reader = new BufferedReader(new FileReader(file));
+
+            String content = "";
+            String line;
+            while ((line = reader.readLine()) != null) {
+                content += line;
+            }
+            reader.close();
+
+            KochData kochData = (KochData)SerializationUtils.deserialize(Base64.getDecoder().decode(content));
+            
+            this.kochManager.setEdgeList(kochData.getEdges());
+            this.kochManager.setKochFractal(kochData.getFractal());
+            this.requestDrawEdges();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
     
-    public void readBinary() throws IOException, ClassNotFoundException
+    public void readBinaryNotBuffered() throws IOException, ClassNotFoundException
     {
         KochData sContent=null;
         byte [] buffer =null;
