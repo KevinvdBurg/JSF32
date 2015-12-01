@@ -362,16 +362,18 @@ public class JSF31KochFractalFX extends Application {
         KochData kd = new KochData(kochManager.getEdgeList(), kochManager.getKochFractal());
         
         TimeStamp timeStamp = new TimeStamp();
-        timeStamp.setBegin("Start - Write Binary Bufferd");
+        timeStamp.setBegin("Start - Write Binary Bufferd"); 
         
         
        //serialize the List
         try (
-          OutputStream file = new FileOutputStream(binaryFilePath);
-          OutputStream buffer = new BufferedOutputStream(file);
-          ObjectOutput output = new ObjectOutputStream(buffer);
+            OutputStream file = new FileOutputStream(binaryFilePath);
+            OutputStream buffer = new BufferedOutputStream(file);
+            ObjectOutput output = new ObjectOutputStream(buffer);
         ){
-          output.writeObject(kd);
+             
+            output.writeObject(kd);
+            
         }  
         catch(IOException ex){
             System.err.println("Cannot perform output." + ex);
@@ -385,30 +387,34 @@ public class JSF31KochFractalFX extends Application {
         KochData kd = new KochData(kochManager.getEdgeList(), kochManager.getKochFractal());
         
         TimeStamp timeStamp = new TimeStamp();
-        timeStamp.setBegin("Start - Write Binary Not Bufferd");
         
+        timeStamp.setBegin("Start - Write Binary Not Bufferd");
        //serialize the List
         try (
           OutputStream file = new FileOutputStream(notBufferedbinaryFilePath);
           ObjectOutput output = new ObjectOutputStream(file);
         ){
-          output.writeObject(kd);
+            output.writeObject(kd);
         }  
         catch(IOException ex){
             System.err.println("Cannot perform output." + ex);
         }
         timeStamp.setEnd("Stop - Write Binary Not Bufferd");
+        
         System.out.println(timeStamp.toString());
     }
 
     public void writeEdgesToTextBuffered()
     {
         KochData kd = new KochData(kochManager.getEdgeList(), kochManager.getKochFractal());
-        
+        byte[] serialized = SerializationUtils.serialize(kd);
+        String s = Base64.getEncoder().encodeToString(serialized);
         TimeStamp timeStamp = new TimeStamp();
-        timeStamp.setBegin("Start - Write Text Bufferd");
+        
 
         FileWriter fw = null;
+        
+        timeStamp.setBegin("Start - Write Text Bufferd");
         try {
             File file = new File(bufferedTextFilePath);
             // if file doesnt exists, then create it
@@ -418,9 +424,9 @@ public class JSF31KochFractalFX extends Application {
             
             fw = new FileWriter(file.getAbsoluteFile());
             BufferedWriter bw = new BufferedWriter(fw);
-  
-            byte[] serialized = SerializationUtils.serialize(kd);
-            bw.write(new String(Base64.getEncoder().encodeToString(serialized)));
+            
+            bw.write(s);
+            
             
 
             bw.close();
@@ -429,7 +435,6 @@ public class JSF31KochFractalFX extends Application {
         } catch (IOException ex) {
             Logger.getLogger(JSF31KochFractalFX.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
         timeStamp.setEnd("Stop - Write Text Bufferd");
         System.out.println(timeStamp.toString());
     }
@@ -437,11 +442,14 @@ public class JSF31KochFractalFX extends Application {
      public void writeEdgesToTextNotBuffered()
     {
         KochData kd = new KochData(kochManager.getEdgeList(), kochManager.getKochFractal());
+        byte[] serialized = SerializationUtils.serialize(kd);
+        String s = Base64.getEncoder().encodeToString(serialized);
         
         TimeStamp timeStamp = new TimeStamp();
-        timeStamp.setBegin("Start - Write Text Not Bufferd");
+        
         
         FileWriter fw = null;
+        timeStamp.setBegin("Start - Write Text Not Bufferd");
         try {
             File file = new File(notBufferedTextFilePath);
             // if file doesnt exists, then create it
@@ -450,8 +458,7 @@ public class JSF31KochFractalFX extends Application {
             }
 
             FileWriter w = new FileWriter(file);
-            byte[] serialized = SerializationUtils.serialize(kd);
-            w.write(new String(Base64.getEncoder().encodeToString(serialized)));
+            w.write(s);
             w.close();
             
             //System.out.println("Wrote Not buffered to text.");
