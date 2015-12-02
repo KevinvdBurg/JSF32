@@ -166,10 +166,6 @@ public class KochManager {
             }
         };
 
-        application.ProgressBottomBar.progressProperty().bind(bottomTask.progressProperty());
-        application.ProgressRightBar.progressProperty().bind(rightTask.progressProperty());
-        application.ProgressLeftBar.progressProperty().bind(leftTask.progressProperty());
-
         tLeft = new Thread(leftTask);
         tBottom = new Thread(bottomTask);
         tRight = new Thread(rightTask);

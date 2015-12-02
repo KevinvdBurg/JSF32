@@ -236,16 +236,26 @@ public class JSF31KochFractalFX extends Application {
                 mode = scanner.nextInt();
                 if(mode == 1)
                     readBinaryBuffered();
-                else
+                else if (mode == 2)
                     readBinaryNotBuffered();
+                else
+                    System.err.println("Not Found! Quiting application...");
+                    System.exit(0);
+                    
             }
-            else
+            else if(mode == 2)
             {
                 mode = scanner.nextInt();
                 if(mode == 1)
                     readTextBuffered();
+                else if (mode == 2)
+                  readTextNotBuffered(); 
                 else
-                  readTextNotBuffered();  
+                    System.err.println("Not Found! Quiting application...");
+            }
+            else{
+                 System.err.println("Not Found! Quiting application...");
+                 System.exit(0);
             }
             primaryStage.show();
         }
