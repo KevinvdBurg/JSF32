@@ -191,9 +191,10 @@ public class KochManager {
 
         edgeList = tempEdgeList;
         
+        
         WriteToFiles();
         
-        System.exit(0);
+        //System.exit(0);
     }
     
     

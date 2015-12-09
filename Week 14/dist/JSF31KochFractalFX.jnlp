@@ -8,7 +8,7 @@
   </information>
   <resources>
     <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
-    <jar href="JSF31KochFractalFX.jar" size="37138" download="eager" />
+    <jar href="JSF31KochFractalFX.jar" size="39615" download="eager" />
     <jar href="lib/commons-lang-2.1.jar" size="207723" download="eager" />
   </resources>
   <applet-desc  width="800" height="600" main-class="com.javafx.main.NoJavaFXFallback"  name="JSF31KochFractalFX" >
