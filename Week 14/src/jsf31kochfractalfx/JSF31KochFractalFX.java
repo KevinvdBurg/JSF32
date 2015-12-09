@@ -78,6 +78,7 @@ public class JSF31KochFractalFX extends Application
     private String notBufferedTextFilePath = path + "textKochNotBuffered.txt";
     private String mappedkochPath = path + "mappedKoch.dat";
     private int fileSize = 10485760; //10MB
+    private static int[] argumentChoices;
 
     // Zoom and drag
     private double zoomTranslateX = 0.0;
@@ -121,11 +122,13 @@ public class JSF31KochFractalFX extends Application
 
     Button buttonIncreaseLevel;
     Button buttonDecreaseLevel;
+    
+    Stage primaryStage;
 
     @Override
     public void start(Stage primaryStage) throws IOException, ClassNotFoundException
     {
-
+        this.primaryStage = primaryStage;
         // Define grid pane
         GridPane grid;
         grid = new GridPane();
@@ -251,7 +254,11 @@ public class JSF31KochFractalFX extends Application
         Scanner scanner = new Scanner(System.in);
         System.out.println();
         System.out.print("Insert 0 for write, 1 for read, 2 for auto read/write: ");
-        int mode = scanner.nextInt();
+        
+        for(int i : argumentChoices)
+            System.out.println("arg: " + i);
+        
+        int mode = argumentChoices.length > 0 ? argumentChoices[0] : scanner.nextInt();
         if (mode == 0)
         {
             requestKochFractal();
@@ -259,12 +266,12 @@ public class JSF31KochFractalFX extends Application
         {
             System.out.println();
             System.out.print("Insert 0 for text,  1 for binary, 2 for mapped :  ");
-            mode = scanner.nextInt();
+            mode = argumentChoices.length > 1 ? argumentChoices[1] : scanner.nextInt();
             System.out.println();
             System.out.print("Insert 0 for not buffered, 1 for buffered : ");
             if (mode == 0)
             {
-                mode = scanner.nextInt();
+                mode = argumentChoices.length > 2 ? argumentChoices[2] : scanner.nextInt();
                 if (mode == 1)
                 {
                     readTextBuffered();
@@ -277,7 +284,7 @@ public class JSF31KochFractalFX extends Application
                 }
             } else if (mode == 1)
             {
-                mode = scanner.nextInt();
+                mode = argumentChoices.length > 3 ? argumentChoices[3] : scanner.nextInt();
                 if (mode == 1)
                 {
                     readBinaryBuffered();
@@ -358,23 +365,29 @@ public class JSF31KochFractalFX extends Application
                             Path child = dir.resolve(filename);
 
                             WatchEvent.Kind kind = ev.kind();
-                            if (kind == ENTRY_CREATE)
-                            {
-                                System.out.println(child + " created");
-                            }
-                            if (kind == ENTRY_DELETE)
-                            {
-                                System.out.println(child + " deleted");
-                            }
-                            if (kind == ENTRY_MODIFY)
-                            {
-                                System.out.println(child + " modified");
+                            if (kind == ENTRY_CREATE || kind == ENTRY_MODIFY) {
+                                if((path+filename.toString()).equals(notBufferedbinaryFilePath))
+                                {
+                                    System.out.println("test");
+                                    readBinaryBuffered();
+        
+                                    Platform.runLater(new Runnable(){
+                                        @Override
+                                        public void run() {
+                                            primaryStage.show();
+                                        }
+                                    });
+                                    
+                                    //Process proc = Runtime.getRuntime().exec("java -jar JSF31KochFractalFX.jar 1 1 0", null, new File("dist/"));
+                                }
                             }
                         }
                         key.reset();
                     }
                 } catch (IOException | InterruptedException ex)
                 {
+                    Logger.getLogger(JSF31KochFractalFX.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (Exception ex) {
                     Logger.getLogger(JSF31KochFractalFX.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
@@ -934,6 +947,12 @@ public class JSF31KochFractalFX extends Application
      */
     public static void main(String[] args)
     {
+        argumentChoices = new int[args.length];
+        for(int i = 0; i < args.length; i++)
+        {
+            argumentChoices[i] = Integer.parseInt(args[i]);
+        }
+        System.out.println("Arguments: " + argumentChoices.length);
         launch(args);
     }
 }
