@@ -706,7 +706,8 @@ public class JSF31KochFractalFX extends Application
         }
         timeStamp.setEnd("Stop - Write Mapped");
         System.out.println(timeStamp.toString());
-
+        File file = new File(mappedkochPath);
+        file.setLastModified(System.currentTimeMillis());
     }
 
     //------------ Interface ------------\\
