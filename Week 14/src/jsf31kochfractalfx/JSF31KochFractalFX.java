@@ -73,7 +73,6 @@ public class JSF31KochFractalFX extends Application
     private String path = "files/";
     private String binaryFilePath = path + "binaryKoch.ser";
     private String notBufferedbinaryFilePath = path + "binaryKochNotBuffered.ser";
-    private String textFilePath = path + "textKoch.txt";
     private String bufferedTextFilePath = path + "textKochBuffered.txt";
     private String notBufferedTextFilePath = path + "textKochNotBuffered.txt";
     private String mappedkochPath = path + "mappedKoch.dat";
@@ -312,10 +311,6 @@ public class JSF31KochFractalFX extends Application
             StartPathList();
             System.out.println("Hiero");
             requestKochFractal();
-            while (true)
-            {                
-                
-            }
 
         } else
         {
@@ -366,19 +361,46 @@ public class JSF31KochFractalFX extends Application
 
                             WatchEvent.Kind kind = ev.kind();
                             if (kind == ENTRY_CREATE || kind == ENTRY_MODIFY) {
+        
+                                Thread.sleep(3000);
+        
+                                Platform.runLater(new Runnable(){
+                                    @Override
+                                    public void run() {
+                                        primaryStage.hide();
+                                        try {
+                                            Thread.sleep(1000);
+                                        } catch (InterruptedException ex) {
+                                            Logger.getLogger(JSF31KochFractalFX.class.getName()).log(Level.SEVERE, null, ex);
+                                        }
+                                        primaryStage.show();
+                                    }
+                                });
+                                
                                 if((path+filename.toString()).equals(notBufferedbinaryFilePath))
                                 {
-                                    System.out.println("test");
+                                    System.out.println("Binary not buffered");
+                                    readBinaryNotBuffered();
+                                }
+                                if((path+filename.toString()).equals(binaryFilePath))
+                                {
+                                    System.out.println("Binary buffered");
                                     readBinaryBuffered();
-        
-                                    Platform.runLater(new Runnable(){
-                                        @Override
-                                        public void run() {
-                                            primaryStage.show();
-                                        }
-                                    });
-                                    
-                                    //Process proc = Runtime.getRuntime().exec("java -jar JSF31KochFractalFX.jar 1 1 0", null, new File("dist/"));
+                                }
+                                if((path+filename.toString()).equals(bufferedTextFilePath))
+                                {
+                                    System.out.println("Text buffered");
+                                    readTextBuffered();
+                                }
+                                if((path+filename.toString()).equals(notBufferedTextFilePath))
+                                {
+                                    System.out.println("Text not buffered");
+                                    readTextNotBuffered();
+                                }
+                                if((path+filename.toString()).equals(mappedkochPath))
+                                {
+                                    System.out.println("Mapped");
+                                    readMapped();
                                 }
                             }
                         }
