@@ -8,13 +8,12 @@ import static java.lang.Thread.sleep;
 import java.util.List;
 import java.util.Observable;
 import java.util.Random;
-import javafx.scene.paint.Color;
 
 /**
  *
  * @author Peter Boots
  */
-public class KochFractal extends Observable {
+public class KochFractal extends Observable implements java.io.Serializable{
 
     private int level = 1;      // The current level of the fractal
     private int nrOfEdges = 3;  // The number of edges in the current level of the fractal
@@ -26,8 +25,7 @@ public class KochFractal extends Observable {
         if (!cancelled) {
             if (n == 1) {
                 hue = hue + 1.0f / nrOfEdges;
-                Edge e = new Edge(ax, ay, bx, by, Color.hsb(hue*360.0, 1.0, 1.0));
-                
+                Edge e = new Edge(ax, ay, bx, by, hue*360.0, 1.0, 1.0);
                 synchronized (this)
                 {
                     edges.add(e);
@@ -41,6 +39,7 @@ public class KochFractal extends Observable {
                 double cy = Math.sin(angle) * distabdiv3 + (by - ay) / 3 + ay;
                 final double midabx = (bx - ax) / 3 + ax;
                 final double midaby = (by - ay) / 3 + ay;
+                
                 drawKochEdge(ax, ay, midabx, midaby, n - 1, sleep, edges);
                 drawKochEdge(midabx, midaby, cx, cy, n - 1, sleep, edges);
                 drawKochEdge(cx, cy, (midabx + bx) / 2, (midaby + by) / 2, n - 1, sleep, edges);

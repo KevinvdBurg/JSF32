@@ -11,7 +11,10 @@ import java.util.Observer;
 import jsf31kochfractalfx.JSF31KochFractalFX;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -25,31 +28,27 @@ import javafx.scene.paint.Color;
  */
 public class KochManager {
     
-    private JSF31KochFractalFX application;
     private List<Edge> edgeList; 
     private List<Edge> tempEdgeList; 
     private KochFractal kochFractal;
     
-    private Task<Void> rightTask = null;
-    private Task<Void> leftTask = null;
-    private Task<Void> bottomTask = null;
-    private Task<Void> drawTask = null;
+    private Runnable rightTask = null;
+    private Runnable leftTask = null;
+    private Runnable bottomTask = null;
     
     private Thread tRight = null;
     private Thread tLeft = null;
     private Thread tBottom = null;
-    private Thread tDraw = null;
     
     private int count;
     
     
     TimeStamp timeStamp;
     
-    public KochManager(JSF31KochFractalFX application)
+    public KochManager()
     {
         this.edgeList = new ArrayList<Edge>();
         this.tempEdgeList = new ArrayList<Edge>();
-        this.application = application; //Add application
         
         this.kochFractal = new KochFractal();
         this.kochFractal.setLevel(1);
@@ -61,15 +60,7 @@ public class KochManager {
     public void changeLevel(final int nxt)
     {
         this.tempEdgeList = new ArrayList<Edge>();
-        application.requestDrawEdges();
         this.kochFractal.cancel();
-        
-        if(this.leftTask != null && this.leftTask.isRunning())
-            this.leftTask.cancel();
-        if(this.rightTask != null && this.rightTask.isRunning())
-            this.rightTask.cancel();
-        if(this.bottomTask != null && this.bottomTask.isRunning())
-            this.bottomTask.cancel();
 
         this.count = 0;
         this.kochFractal = new KochFractal();
@@ -81,104 +72,64 @@ public class KochManager {
         timeStamp = new TimeStamp();
         timeStamp.setBegin("Start berekenen");
 
-        leftTask = new Task<Void>()
+        leftTask = new Runnable()
         {
-            
-            @Override 
-            public Void call() throws InterruptedException {
-                ObservableList edges = FXCollections.observableList(new ArrayList<Edge>());
-                edges.addListener(new ListChangeListener() {
-                    int numberOfEdges;
-                    @Override
-                    public void onChanged(ListChangeListener.Change change) {
-                        numberOfEdges++;
-                        updateProgress(numberOfEdges, kochFractal.getNrOfEdges()/3);
-                        application.setLeftEdgeNr(numberOfEdges);
-                    }
-                });
-                
-                updateProgress(0, kochFractal.getNrOfEdges());
-                kochFractal.generateLeftEdge(edges);
-                return null;
-            }
-            
-            @Override 
-            protected void done()
+            @Override
+            public void run()
             {
-                edgesCalculated();
+                ObservableList edges = FXCollections.observableList(new ArrayList<Edge>());
+                try {
+                    kochFractal.generateLeftEdge(edges);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(KochManager.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         };
 
-        bottomTask = new Task<Void>()
+        bottomTask = new Runnable()
         {
-            
-            @Override 
-            public Void call() throws InterruptedException {
-                ObservableList edges = FXCollections.observableList(new ArrayList<Edge>());
-                edges.addListener(new ListChangeListener() {
-                    int numberOfEdges;
-                    @Override
-                    public void onChanged(ListChangeListener.Change change) {
-                        numberOfEdges++;
-                        updateProgress(numberOfEdges, kochFractal.getNrOfEdges()/3);
-                        application.setBottomEdgeNr(numberOfEdges);
-                    }
-                });
-                
-                updateProgress(0, kochFractal.getNrOfEdges());
-                kochFractal.generateBottomEdge(edges);
-                return null;
-            }
-            
-            @Override 
-            protected void done()
+            @Override
+            public void run()
             {
-                edgesCalculated();
+                ObservableList edges = FXCollections.observableList(new ArrayList<Edge>());
+                try {
+                    kochFractal.generateBottomEdge(edges);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(KochManager.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         };
 
-        rightTask = new Task<Void>()
+        rightTask = new Runnable()
         {
-            
-            @Override 
-            public Void call() throws InterruptedException {
-                ObservableList edges = FXCollections.observableList(new ArrayList<Edge>());
-                edges.addListener(new ListChangeListener() {
-                    int numberOfEdges;
-                    @Override
-                    public void onChanged(ListChangeListener.Change change) {
-                        numberOfEdges++;
-                        updateProgress(numberOfEdges, kochFractal.getNrOfEdges()/3);
-                        application.setRightEdgeNr(numberOfEdges);
-                    }
-                });
-                
-                updateProgress(0, kochFractal.getNrOfEdges());
-                kochFractal.generateRightEdge(edges);
-                return null;
-            }
-            
-            @Override 
-            protected void done()
+            @Override
+            public void run()
             {
-                edgesCalculated();
+                ObservableList edges = FXCollections.observableList(new ArrayList<Edge>());
+                try {
+                    kochFractal.generateRightEdge(edges);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(KochManager.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         };
-
-        application.ProgressBottomBar.progressProperty().bind(bottomTask.progressProperty());
-        application.ProgressRightBar.progressProperty().bind(rightTask.progressProperty());
-        application.ProgressLeftBar.progressProperty().bind(leftTask.progressProperty());
 
         tLeft = new Thread(leftTask);
         tBottom = new Thread(bottomTask);
         tRight = new Thread(rightTask);
-        tDraw = new Thread(drawTask);
 
         tLeft.start();
         tBottom.start();
         tRight.start();
-        tDraw.start();
-
+        
+        try {
+            tLeft.join();
+            tBottom.join();
+            tRight.join();
+            edgeList = tempEdgeList;
+        } catch (InterruptedException ex) {
+            Logger.getLogger(KochManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     public void edgesCalculated()
@@ -192,10 +143,6 @@ public class KochManager {
         edgeList = tempEdgeList;
 
         timeStamp.setEnd("Stop berekenen");
-        application.setTextCalc(timeStamp.toString());
-        application.setTextNrEdges(edgeList.size()+"");
-
-        application.requestDrawEdges();
     }
     
     public KochFractal getNewKochFractal(int level)
@@ -203,21 +150,6 @@ public class KochManager {
         
         return kochFractal;
         
-    }
-    
-    public void drawEdges()
-    {
-        application.clearKochPanel();
-        TimeStamp timeStamp = new TimeStamp();
-        timeStamp.setBegin("Start tekenen");
-
-        for(Edge edge : edgeList)
-        {
-            this.application.drawEdge(edge);
-        }
-        
-        timeStamp.setEnd("Stop tekenen");
-        this.application.setTextDraw(timeStamp.toString());
     }
     
     public class KochFractalObserver implements Observer
@@ -228,14 +160,11 @@ public class KochManager {
             final Edge edge = (Edge) arg;
             tempEdgeList.add(edge);
             
-            Platform.runLater(new Runnable(){
-                @Override
-                public void run() {
-                   Edge e = new Edge(edge.X1,edge.Y1,edge.X2,edge.Y2, Color.WHITE);
-                   application.drawEdge(e);
-                }
-            });
-            
         }
+    }
+    
+    public List<Edge> getEdges()
+    {
+        return this.edgeList;
     }
 }

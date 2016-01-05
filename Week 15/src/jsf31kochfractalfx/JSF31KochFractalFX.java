@@ -5,6 +5,7 @@
 package jsf31kochfractalfx;
 
 import calculate.*;
+import java.util.List;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
 import javafx.application.Platform;
@@ -21,6 +22,7 @@ import javafx.scene.input.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import network.KochClient;
 
 /**
  *
@@ -38,8 +40,8 @@ public class JSF31KochFractalFX extends Application {
     private double lastDragY = 0.0;
 
     // Koch manager
-    // TO DO: Create class KochManager in package calculate
-    private KochManager kochManager;
+    private KochClient kochClient;
+    private List<Edge> edges;
     
     // Current level of Koch fractal
     private int currentLevel = 1;
@@ -201,8 +203,6 @@ public class JSF31KochFractalFX extends Application {
         
         // Create Koch manager and set initial level
         resetZoom();
-        kochManager = new KochManager(this);
-        kochManager.changeLevel(currentLevel);
         
         // Create the scene and add the grid pane
         Group root = new Group();
@@ -212,6 +212,11 @@ public class JSF31KochFractalFX extends Application {
         // Define title and assign the scene for main window
         primaryStage.setTitle("Koch Fractal");
         primaryStage.setScene(scene);
+        
+        kochClient = new KochClient();
+        this.edges = kochClient.requestAllEdges(currentLevel);
+        requestDrawEdges();
+        
         primaryStage.show();
     }
     
@@ -230,7 +235,7 @@ public class JSF31KochFractalFX extends Application {
         Edge e1 = edgeAfterZoomAndDrag(e);
         
         // Set line color
-        gc.setStroke(e1.color);
+        gc.setStroke(e1.getColor());
         
         // Set line width depending on level
         if (currentLevel <= 3) {
@@ -311,7 +316,7 @@ public class JSF31KochFractalFX extends Application {
         Platform.runLater(new Runnable(){
             @Override
             public void run() {
-                kochManager.drawEdges();
+                drawEdges();
             }
         });
     }
@@ -322,7 +327,8 @@ public class JSF31KochFractalFX extends Application {
             // resetZoom();
             currentLevel++;
             labelLevel.setText("Level: " + currentLevel);
-            kochManager.changeLevel(currentLevel);
+            this.edges = kochClient.requestAllEdges(currentLevel);
+            requestDrawEdges();
         }
     } 
     
@@ -332,13 +338,23 @@ public class JSF31KochFractalFX extends Application {
             // resetZoom();
             currentLevel--;
             labelLevel.setText("Level: " + currentLevel);
-            kochManager.changeLevel(currentLevel);
+            this.edges = kochClient.requestAllEdges(currentLevel);
+            requestDrawEdges();
         }
     } 
 
     private void fitFractalButtonActionPerformed(ActionEvent event) {
         resetZoom();
-        kochManager.drawEdges();
+        requestDrawEdges();
+    }
+    
+    private void drawEdges()
+    {
+        clearKochPanel();
+        for(Edge edge : edges)
+        {
+            drawEdge(edge);
+        }
     }
     
     private void kochPanelMouseClicked(MouseEvent event) {
@@ -353,7 +369,7 @@ public class JSF31KochFractalFX extends Application {
             }
             zoomTranslateX = (int) (event.getX() - originalPointClickedX * zoom);
             zoomTranslateY = (int) (event.getY() - originalPointClickedY * zoom);
-            kochManager.drawEdges();
+            requestDrawEdges();
         }
     }                                      
 
@@ -362,7 +378,7 @@ public class JSF31KochFractalFX extends Application {
         zoomTranslateY = zoomTranslateY + event.getY() - lastDragY;
         lastDragX = event.getX();
         lastDragY = event.getY();
-        kochManager.drawEdges();
+        requestDrawEdges();
     }
 
     private void kochPanelMousePressed(MouseEvent event) {
@@ -385,7 +401,9 @@ public class JSF31KochFractalFX extends Application {
                 e.Y1 * zoom + zoomTranslateY,
                 e.X2 * zoom + zoomTranslateX,
                 e.Y2 * zoom + zoomTranslateY,
-                e.color);
+                e.hue,
+                e.saturation,
+                e.brightness);
     }
 
     public Label getlabelCountLeft(){
