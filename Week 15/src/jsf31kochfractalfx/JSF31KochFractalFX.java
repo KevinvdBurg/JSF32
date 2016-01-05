@@ -5,32 +5,6 @@
 package jsf31kochfractalfx;
 
 import calculate.*;
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.ObjectInput;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.Writer;
-import java.util.Base64;
-import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
 import javafx.application.Platform;
@@ -47,20 +21,12 @@ import javafx.scene.input.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import org.apache.commons.lang.SerializationUtils;
-import org.apache.commons.lang.StringUtils;
 
 /**
  *
  * @author Nico Kuijpers
  */
 public class JSF31KochFractalFX extends Application {
-    
-    private String binaryFilePath = "binaryKoch.ser";
-    private String notBufferedbinaryFilePath = "binaryKochNotBuffered.ser";
-    private String textFilePath = "textKoch.txt";
-    private String bufferedTextFilePath = "textKochBuffered.txt";
-    private String notBufferedTextFilePath = "textKochNotBuffered.txt";
     
     // Zoom and drag
     private double zoomTranslateX = 0.0;
@@ -106,7 +72,7 @@ public class JSF31KochFractalFX extends Application {
     Button buttonDecreaseLevel;
     
     @Override
-    public void start(Stage primaryStage) throws IOException, ClassNotFoundException {
+    public void start(Stage primaryStage) {
         
         // Define grid pane
         GridPane grid;
@@ -154,7 +120,6 @@ public class JSF31KochFractalFX extends Application {
                 increaseLevelButtonActionPerformed(event);
             }
         });
-        buttonIncreaseLevel.setVisible(false);
         grid.add(buttonIncreaseLevel, 3, 6);
 
         // Button to decrease level of Koch fractal
@@ -166,7 +131,6 @@ public class JSF31KochFractalFX extends Application {
                 decreaseLevelButtonActionPerformed(event);
             }
         });
-        buttonDecreaseLevel.setVisible(false);
         grid.add(buttonDecreaseLevel, 5, 6);
         
         // Button to fit Koch fractal in Koch panel
@@ -206,9 +170,39 @@ public class JSF31KochFractalFX extends Application {
             }
         });
         
+        // Labels progress Left
+        labelProgressLeft = new Label("Progress Left:");
+        labelProgressLeftNrEdge.setText("Nr. Edges:");
+        ProgressLeftBar = new ProgressBar();
+        ProgressLeftBar.setProgress(0.0f);
+        grid.add(labelProgressLeft, 0, 8, 4, 1);
+        grid.add(ProgressLeftBar, 4, 8, 22, 1);
+        grid.add(labelProgressLeftNrEdge, 8, 8, 22, 1);
+        
+        
+        // Labels progress Bottom
+        labelProgressBottom = new Label("Progress Bottom:");
+        labelProgressBottomNrEdge.setText("Nr. Edges:");
+        ProgressBottomBar = new ProgressBar();
+        ProgressBottomBar.setProgress(0.0f);
+        grid.add(labelProgressBottom, 0, 9, 4, 1); 
+        grid.add(ProgressBottomBar, 4, 9, 22, 1);
+        grid.add(labelProgressBottomNrEdge, 8, 9, 22, 1);
+        
+        // Labels progress Right
+        labelProgressRight = new Label("Progress Right:");
+        labelProgressRightNrEdge.setText("Nr. Edges:");
+        ProgressRightBar = new ProgressBar();
+        ProgressRightBar.setProgress(0.0f);
+        grid.add(labelProgressRight, 0, 10, 4, 1);
+        grid.add(ProgressRightBar, 4, 10, 22, 1);
+        grid.add(labelProgressRightNrEdge, 8, 10, 22, 1);
+        
+        
         // Create Koch manager and set initial level
         resetZoom();
         kochManager = new KochManager(this);
+        kochManager.changeLevel(currentLevel);
         
         // Create the scene and add the grid pane
         Group root = new Group();
@@ -218,318 +212,9 @@ public class JSF31KochFractalFX extends Application {
         // Define title and assign the scene for main window
         primaryStage.setTitle("Koch Fractal");
         primaryStage.setScene(scene);
-        
-        
-        Scanner scanner = new Scanner(System.in);
-        System.out.println();
-        System.out.print("Insert 1 for read and 0 for write: ");
-        int mode = scanner.nextInt();
-        if(mode == 1)
-        {
-            System.out.println();
-            System.out.print("Insert 1 for binary and 0 for text: ");
-            mode = scanner.nextInt();
-            System.out.println();
-            System.out.print("Insert 1 for buffered and 0 for not buffered: ");
-            if(mode == 1)
-            {
-                mode = scanner.nextInt();
-                if(mode == 1)
-                    readBinaryBuffered();
-                else if (mode == 2)
-                    readBinaryNotBuffered();
-                else
-                    System.err.println("Not Found! Quiting application...");
-                    System.exit(0);
-                    
-            }
-            else if(mode == 2)
-            {
-                mode = scanner.nextInt();
-                if(mode == 1)
-                    readTextBuffered();
-                else if (mode == 2)
-                  readTextNotBuffered(); 
-                else
-                    System.err.println("Not Found! Quiting application...");
-            }
-            else{
-                 System.err.println("Not Found! Quiting application...");
-                 System.exit(0);
-            }
-            primaryStage.show();
-        }
-        else
-            requestKochFractal();
+        primaryStage.show();
     }
     
-    public void requestKochFractal() throws IOException
-    {
-        Scanner scanner = new Scanner(System.in);
-        System.out.println();
-        System.out.print("insert kochfractal level: ");
-        int level = scanner.nextInt();
-        
-        this.kochManager.changeLevel(level);
-    }
-    
-    //------------ Read ------------\\
-    public void readTextBuffered() throws IOException, ClassNotFoundException
-    {
-        TimeStamp timeStamp = new TimeStamp();
-        timeStamp.setBegin("Start - Read Text Bufferd");
-        
-        BufferedReader reader = null;
-
-        try {
-            File file = new File(bufferedTextFilePath);
-            reader = new BufferedReader(new FileReader(file));
-
-            String content = "";
-            String line;
-            while ((line = reader.readLine()) != null) {
-                content += line;
-            }
-            reader.close();
-
-            KochData kochData = (KochData)SerializationUtils.deserialize(Base64.getDecoder().decode(content));
-            
-            this.kochManager.setEdgeList(kochData.getEdges());
-            this.kochManager.setKochFractal(kochData.getFractal());
-            this.labelLevel.setText("Level: " + kochData.getFractal().getLevel());
-            this.requestDrawEdges();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        
-        timeStamp.setEnd("Stop - Read Text Bufferd");
-        System.out.println(timeStamp.toString());
-        
-    }
-    
-    public void readTextNotBuffered() throws IOException, ClassNotFoundException
-    {
-        TimeStamp timeStamp = new TimeStamp();
-        timeStamp.setBegin("Start - Read Text Bufferd");
-        
-        try {
-            String content = "";
-            InputStream inputStream       = new FileInputStream(notBufferedTextFilePath);
-            Reader inputStreamReader = new InputStreamReader(inputStream);
-
-            int data = inputStreamReader.read();
-            while(data != -1){
-                char theChar = (char) data;
-                content += theChar;
-                data = inputStreamReader.read();
-            }
-
-            inputStreamReader.close();
-
-            KochData kochData = (KochData)SerializationUtils.deserialize(Base64.getDecoder().decode(content));
-            
-            this.kochManager.setEdgeList(kochData.getEdges());
-            this.kochManager.setKochFractal(kochData.getFractal());
-            this.labelLevel.setText("Level: " + kochData.getFractal().getLevel());
-            this.requestDrawEdges();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        
-        timeStamp.setEnd("Stop - Read Text Bufferd");
-        System.out.println(timeStamp.toString());
-        
-    }
-    
-    public void readBinaryBuffered() throws IOException, ClassNotFoundException
-    {
-        TimeStamp timeStamp = new TimeStamp();
-        timeStamp.setBegin("Start - Read Binary Not Bufferd");
-        
-        KochData sContent=null;
-        byte [] buffer =null;
-        File a_file = new File(binaryFilePath);
-        
-        if(a_file.exists() && !a_file.isDirectory()) { 
-            try
-            {
-                DataInputStream fis = new DataInputStream(new FileInputStream(binaryFilePath));
-                int length = (int)a_file.length();
-                buffer = new byte [length];
-                fis.read(buffer);
-                fis.close();
-            }
-            catch(IOException e)
-            {
-                e.printStackTrace();
-            }
-            ByteArrayInputStream bis = new ByteArrayInputStream(buffer);
-            ObjectInput in = new ObjectInputStream(bis);
-            sContent = (KochData)in.readObject();
-            
-            this.kochManager.setEdgeList(sContent.getEdges());
-            this.kochManager.setKochFractal(sContent.getFractal());
-            this.labelLevel.setText("Level: " + sContent.getFractal().getLevel());
-            this.requestDrawEdges();
-        }
-        
-        timeStamp.setEnd("Stop - Read Text Bufferd");
-        System.out.println(timeStamp.toString());
-    }
-    
-    public void readBinaryNotBuffered() throws IOException, ClassNotFoundException
-    {
-        TimeStamp timeStamp = new TimeStamp();
-        timeStamp.setBegin("Start - Read Binary Not Bufferd");
-        
-        KochData sContent=null;
-        byte [] buffer =null;
-        File a_file = new File(binaryFilePath);
-        
-        if(a_file.exists() && !a_file.isDirectory()) { 
-            try
-            {
-                FileInputStream fis = new FileInputStream(binaryFilePath);
-                int length = (int)a_file.length();
-                buffer = new byte [length];
-                fis.read(buffer);
-                fis.close();
-            }
-            catch(IOException e)
-            {
-                e.printStackTrace();
-            }
-            ByteArrayInputStream bis = new ByteArrayInputStream(buffer);
-            ObjectInput in = new ObjectInputStream(bis);
-            sContent = (KochData)in.readObject();
-            
-            this.kochManager.setEdgeList(sContent.getEdges());
-            this.kochManager.setKochFractal(sContent.getFractal());
-            this.labelLevel.setText("Level: " + sContent.getFractal().getLevel());
-            this.requestDrawEdges();
-        }
-        
-        timeStamp.setEnd("Stop - Read Text Bufferd");
-        System.out.println(timeStamp.toString());
-    }
-
-    //------------ Write ------------\\
-    public void writeEdgesToBinaryBufferd()
-    {
-        KochData kd = new KochData(kochManager.getEdgeList(), kochManager.getKochFractal());
-        
-        TimeStamp timeStamp = new TimeStamp();
-        timeStamp.setBegin("Start - Write Binary Bufferd"); 
-        
-        
-       //serialize the List
-        try (
-            OutputStream file = new FileOutputStream(binaryFilePath);
-            OutputStream buffer = new BufferedOutputStream(file);
-            ObjectOutput output = new ObjectOutputStream(buffer);
-        ){
-             
-            output.writeObject(kd);
-            
-        }  
-        catch(IOException ex){
-            System.err.println("Cannot perform output." + ex);
-        }
-        timeStamp.setEnd("Stop - Write Binary Bufferd");
-        System.out.println(timeStamp.toString());
-    }
-    
-    public void writeEdgesToBinaryNotBufferd()
-    {
-        KochData kd = new KochData(kochManager.getEdgeList(), kochManager.getKochFractal());
-        
-        TimeStamp timeStamp = new TimeStamp();
-        
-        timeStamp.setBegin("Start - Write Binary Not Bufferd");
-       //serialize the List
-        try (
-          OutputStream file = new FileOutputStream(notBufferedbinaryFilePath);
-          ObjectOutput output = new ObjectOutputStream(file);
-        ){
-            output.writeObject(kd);
-        }  
-        catch(IOException ex){
-            System.err.println("Cannot perform output." + ex);
-        }
-        timeStamp.setEnd("Stop - Write Binary Not Bufferd");
-        
-        System.out.println(timeStamp.toString());
-    }
-
-    public void writeEdgesToTextBuffered()
-    {
-        KochData kd = new KochData(kochManager.getEdgeList(), kochManager.getKochFractal());
-        byte[] serialized = SerializationUtils.serialize(kd);
-        String s = Base64.getEncoder().encodeToString(serialized);
-        TimeStamp timeStamp = new TimeStamp();
-        
-
-        FileWriter fw = null;
-        
-        timeStamp.setBegin("Start - Write Text Bufferd");
-        try {
-            File file = new File(bufferedTextFilePath);
-            // if file doesnt exists, then create it
-            if (!file.exists()) {
-                file.createNewFile();
-            }
-            
-            fw = new FileWriter(file.getAbsoluteFile());
-            BufferedWriter bw = new BufferedWriter(fw);
-            
-            bw.write(s);
-            
-            
-
-            bw.close();
-            fw.close();
-            //System.out.println("Wrote buffered to text.");
-        } catch (IOException ex) {
-            Logger.getLogger(JSF31KochFractalFX.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        timeStamp.setEnd("Stop - Write Text Bufferd");
-        System.out.println(timeStamp.toString());
-    }
-    
-     public void writeEdgesToTextNotBuffered()
-    {
-        KochData kd = new KochData(kochManager.getEdgeList(), kochManager.getKochFractal());
-        byte[] serialized = SerializationUtils.serialize(kd);
-        String s = Base64.getEncoder().encodeToString(serialized);
-        
-        TimeStamp timeStamp = new TimeStamp();
-        
-        
-        FileWriter fw = null;
-        timeStamp.setBegin("Start - Write Text Not Bufferd");
-        try {
-            File file = new File(notBufferedTextFilePath);
-            // if file doesnt exists, then create it
-            if (!file.exists()) {
-                file.createNewFile();
-            }
-
-            FileWriter w = new FileWriter(file);
-            w.write(s);
-            w.close();
-            
-            //System.out.println("Wrote Not buffered to text.");
-        } catch (IOException ex) {
-            Logger.getLogger(JSF31KochFractalFX.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        timeStamp.setEnd("Stop - Write Text Not Bufferd");
-        System.out.println(timeStamp.toString());
-    }
-    
-    //------------ Interface ------------\\
     public void clearKochPanel() {
         GraphicsContext gc = kochPanel.getGraphicsContext2D();
         gc.clearRect(0.0,0.0,kpWidth,kpHeight);
@@ -545,7 +230,7 @@ public class JSF31KochFractalFX extends Application {
         Edge e1 = edgeAfterZoomAndDrag(e);
         
         // Set line color
-        gc.setStroke(e1.getColor());
+        gc.setStroke(e1.color);
         
         // Set line width depending on level
         if (currentLevel <= 3) {
@@ -621,7 +306,6 @@ public class JSF31KochFractalFX extends Application {
             }
         });
     }
-    
     
     public void requestDrawEdges() {
         Platform.runLater(new Runnable(){
@@ -701,9 +385,7 @@ public class JSF31KochFractalFX extends Application {
                 e.Y1 * zoom + zoomTranslateY,
                 e.X2 * zoom + zoomTranslateX,
                 e.Y2 * zoom + zoomTranslateY,
-                e.hue,
-                e.saturation,
-                e.brightness);
+                e.color);
     }
 
     public Label getlabelCountLeft(){

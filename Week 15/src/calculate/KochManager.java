@@ -17,6 +17,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.scene.paint.Color;
 
 /**
  *
@@ -28,8 +29,6 @@ public class KochManager {
     private List<Edge> edgeList; 
     private List<Edge> tempEdgeList; 
     private KochFractal kochFractal;
-
-
     
     private Task<Void> rightTask = null;
     private Task<Void> leftTask = null;
@@ -166,6 +165,10 @@ public class KochManager {
             }
         };
 
+        application.ProgressBottomBar.progressProperty().bind(bottomTask.progressProperty());
+        application.ProgressRightBar.progressProperty().bind(rightTask.progressProperty());
+        application.ProgressLeftBar.progressProperty().bind(leftTask.progressProperty());
+
         tLeft = new Thread(leftTask);
         tBottom = new Thread(bottomTask);
         tRight = new Thread(rightTask);
@@ -187,13 +190,12 @@ public class KochManager {
         System.out.println("Draw");
 
         edgeList = tempEdgeList;
-        
-        application.writeEdgesToBinaryBufferd();
-        application.writeEdgesToBinaryNotBufferd();
-        
-        application.writeEdgesToTextBuffered();
-        application.writeEdgesToTextNotBuffered();
-        System.exit(0);
+
+        timeStamp.setEnd("Stop berekenen");
+        application.setTextCalc(timeStamp.toString());
+        application.setTextNrEdges(edgeList.size()+"");
+
+        application.requestDrawEdges();
     }
     
     public KochFractal getNewKochFractal(int level)
@@ -229,29 +231,11 @@ public class KochManager {
             Platform.runLater(new Runnable(){
                 @Override
                 public void run() {
-                   Edge e = new Edge(edge.X1,edge.Y1,edge.X2,edge.Y2, 1.0, 1.0, 1.0); //Color is White
+                   Edge e = new Edge(edge.X1,edge.Y1,edge.X2,edge.Y2, Color.WHITE);
                    application.drawEdge(e);
                 }
             });
             
         }
-    }
-    
-    public List<Edge> getEdgeList()
-    {
-        return edgeList;
-    }
-    
-    public KochFractal getKochFractal()
-    {
-        return kochFractal;
-    }
-
-    public void setEdgeList(List<Edge> edgeList) {
-        this.edgeList = edgeList;
-    }
-
-    public void setKochFractal(KochFractal kochFractal) {
-        this.kochFractal = kochFractal;
     }
 }
