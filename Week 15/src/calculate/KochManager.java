@@ -5,6 +5,8 @@
  */
 package calculate;
 
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import static java.lang.Thread.sleep;
 import java.util.Observable;
 import java.util.Observer;
@@ -31,6 +33,7 @@ public class KochManager {
     private List<Edge> edgeList; 
     private List<Edge> tempEdgeList; 
     private KochFractal kochFractal;
+    private List<List<Edge>> cachedFractals;
     
     private Runnable rightTask = null;
     private Runnable leftTask = null;
@@ -42,11 +45,20 @@ public class KochManager {
     
     private int count;
     
+    private ObjectOutputStream out;
+    public boolean sendSeparate;
     
     TimeStamp timeStamp;
     
-    public KochManager()
+    public KochManager(ObjectOutputStream out)
     {
+        this.cachedFractals = new ArrayList<>();
+        for(int i = 0; i < 12; i++)
+        {
+            this.cachedFractals.add(new ArrayList<Edge>());
+        }
+        this.sendSeparate = false;
+        this.out = out;
         this.edgeList = new ArrayList<Edge>();
         this.tempEdgeList = new ArrayList<Edge>();
         
@@ -68,6 +80,17 @@ public class KochManager {
         
         KochFractalObserver kochFractalObserver = new KochFractalObserver();//Create observer
         this.kochFractal.addObserver(kochFractalObserver);//Add observer
+        
+        if(this.cachedFractals.get(nxt-1).size() > 0)
+        {
+            for(Edge edge : this.cachedFractals.get(nxt-1))
+            {
+                this.kochFractal.changed();
+                this.kochFractal.notifyObservers(edge);
+            }
+            edgeList = tempEdgeList;
+            return;
+        }
 
         timeStamp = new TimeStamp();
         timeStamp.setBegin("Start berekenen");
@@ -127,6 +150,7 @@ public class KochManager {
             tBottom.join();
             tRight.join();
             edgeList = tempEdgeList;
+            this.cachedFractals.set(nxt - 1, edgeList);
         } catch (InterruptedException ex) {
             Logger.getLogger(KochManager.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -160,6 +184,14 @@ public class KochManager {
             final Edge edge = (Edge) arg;
             tempEdgeList.add(edge);
             
+            if(sendSeparate)
+            {
+                try {
+                    out.writeObject(edge);
+                } catch (IOException ex) {
+                    Logger.getLogger(KochManager.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
         }
     }
     

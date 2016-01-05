@@ -41,7 +41,7 @@ public class JSF31KochFractalFX extends Application {
 
     // Koch manager
     private KochClient kochClient;
-    private List<Edge> edges;
+    public List<Edge> edges;
     
     // Current level of Koch fractal
     private int currentLevel = 1;
@@ -213,7 +213,7 @@ public class JSF31KochFractalFX extends Application {
         primaryStage.setTitle("Koch Fractal");
         primaryStage.setScene(scene);
         
-        kochClient = new KochClient();
+        kochClient = new KochClient(this);
         this.edges = kochClient.requestAllEdges(currentLevel);
         requestDrawEdges();
         
@@ -327,8 +327,7 @@ public class JSF31KochFractalFX extends Application {
             // resetZoom();
             currentLevel++;
             labelLevel.setText("Level: " + currentLevel);
-            this.edges = kochClient.requestAllEdges(currentLevel);
-            requestDrawEdges();
+            kochClient.requestAllEdgesSeperate(currentLevel);
         }
     } 
     

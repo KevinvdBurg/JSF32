@@ -61,7 +61,6 @@ public class KochServer {
             public void run()
             {
     
-                KochManager kochManager = new KochManager();
                 
                 try {
                     OutputStream outStream = socket.getOutputStream();
@@ -69,6 +68,8 @@ public class KochServer {
 
                     ObjectInputStream in = new ObjectInputStream(inStream);
                     ObjectOutputStream out = new ObjectOutputStream(outStream);
+                    
+                    KochManager kochManager = new KochManager(out);
 
                     while(!socket.isClosed())
                     {
@@ -82,7 +83,13 @@ public class KochServer {
                                 if(inObject instanceof RequestAllEdgesSeparate)
                                 {
                                     RequestAllEdgesSeparate edgeRequest = (RequestAllEdgesSeparate)inObject;
+                                    
+                                    kochManager.sendSeparate = true;
                                     kochManager.changeLevel(edgeRequest.level);
+                                    kochManager.sendSeparate = false;
+
+                                    out.writeObject("end");
+                                    out.flush();
 
                                 }
                                 else if(inObject instanceof RequestAllEdges)

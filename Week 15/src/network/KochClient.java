@@ -12,11 +12,15 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import static java.lang.Thread.sleep;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Application;
+import javafx.application.Platform;
+import jsf31kochfractalfx.JSF31KochFractalFX;
 import network.Network.RequestAllEdges;
 import network.Network.RequestAllEdgesSeparate;
 
@@ -30,10 +34,12 @@ public class KochClient {
     private InputStream inStream;
     private ObjectOutputStream out;
     private ObjectInputStream in;
+    private JSF31KochFractalFX application;
     
-    public KochClient()
+    public KochClient(JSF31KochFractalFX application)
     {   
         try {
+            this.application = application;
             this.socket = new Socket(Network.ip, Network.port);
             this.outStream = socket.getOutputStream();
             this.inStream = socket.getInputStream();
@@ -85,46 +91,55 @@ public class KochClient {
         return edges;
     }
     
-    public List<Edge> requestAllEdgesSeperate(int level, List<Edge> edges)
+    public void requestAllEdgesSeperate(final int level)
     {
-        try
+        final List<Edge> edges = new ArrayList<Edge>();
+        Runnable socketThread = new Runnable()
         {
-            OutputStream outStream = socket.getOutputStream();
-            InputStream inStream = socket.getInputStream();
-
-            // Let op: volgorde is van belang!
-            ObjectOutputStream out = new ObjectOutputStream(outStream);
-            ObjectInputStream in = new ObjectInputStream(inStream);
-
-            RequestAllEdgesSeparate edgeRequest = new RequestAllEdgesSeparate(level);
-            
-            out.writeObject(edgeRequest);
-            out.flush();
-            
-            boolean done = false;
-            while(!done)
+            @Override
+            public void run()
             {
-                Object input = in.readObject();
-                if(input instanceof Edge)
+                try
                 {
-                    edges.add((Edge)input);
+
+                    application.edges = new ArrayList<>();
+                    application.clearKochPanel();
+                    RequestAllEdgesSeparate edgeRequest = new RequestAllEdgesSeparate(level);
+
+                    out.writeObject(edgeRequest);
+                    out.flush();
+
+                    boolean done = false;
+                    while(!done)
+                    {
+                        Object input = in.readObject();
+                        if(input instanceof Edge)
+                        {
+                            final Edge edge = (Edge)input;
+                            application.edges.add(edge);
+                            application.drawEdge(edge);
+                            sleep(1);
+                        }
+                        else if(input instanceof String)
+                        {
+                            String string = (String) input;
+                            if(string.toLowerCase().equals("end"))
+                                done = true;
+                        }
+                    }
                 }
-                else if(input instanceof String)
-                {
-                    String string = (String) input;
-                    if(string.toLowerCase().equals("end"))
-                        done = true;
+                catch (IOException e)
+                {  
+                   e.printStackTrace();
+                } catch (ClassNotFoundException ex) {
+                    Logger.getLogger(KochClient.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(KochClient.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-        }
-        catch (IOException e)
-        {  
-           e.printStackTrace();
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(KochClient.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        return edges;
+        };
+        Thread thread = new Thread(socketThread);
+        thread.start();
     }
     
     public void closeConnection()

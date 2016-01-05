@@ -94,4 +94,9 @@ public class KochFractal extends Observable implements java.io.Serializable{
     public int getNrOfEdges() {
         return nrOfEdges;
     }
+    
+    public void changed()
+    {
+        this.setChanged();
+    }
 }
