@@ -16,7 +16,20 @@ public class Jna {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // TODO code application logic here
+        ILibrary lib = (ILibrary) Native.loadLibrary("kernel32", ILibrary.class);
+        SYSTEMTIME sysTime = new SYSTEMTIME(); 
+        
+        long startTime;
+        startTime = System.nanoTime();
+        for(int i = 0; i < 1000000; i++)
+            lib.GetSystemTime(sysTime);
+        System.out.println("GetSystemTime: " + ((System.nanoTime() - startTime)/1000000) + "ms");
+        
+        startTime = System.nanoTime();
+        for(int i = 0; i < 1000000; i++)
+            System.nanoTime();
+        System.out.println("nanoTime: " + ((System.nanoTime() - startTime)/1000000) + "ms");
+        
     }
     
 }
