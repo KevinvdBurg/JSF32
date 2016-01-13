@@ -5,6 +5,7 @@
  */
 package jna;
 import com.sun.jna.*;
+import com.sun.jna.ptr.IntByReference;
 
 /**
  *
@@ -30,6 +31,18 @@ public class Jna {
             System.nanoTime();
         System.out.println("nanoTime: " + ((System.nanoTime() - startTime)/1000000) + "ms");
         
+        System.out.println("Start Opdracht 2");
+        
+        String lpRootPathName = "C:\\" ;
+        IntByReference lpSectorsPerCluster = new IntByReference();
+        IntByReference lpBytesPerSector = new IntByReference();
+        IntByReference lpNumberOfFreeClusters = new IntByReference();
+        IntByReference lpTotalNumberOfClusters = new IntByReference();
+        
+        if (lib.GetDiskFreeSpaceA(lpRootPathName, lpSectorsPerCluster, lpBytesPerSector, lpNumberOfFreeClusters, lpTotalNumberOfClusters)) {
+            System.out.println("Vrij!");
+        }
     }
+        
     
 }

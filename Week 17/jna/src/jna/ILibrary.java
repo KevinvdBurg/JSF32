@@ -6,6 +6,7 @@
 package jna;
 
 import com.sun.jna.Library;
+import com.sun.jna.ptr.IntByReference;
 
 /**
  *
@@ -13,4 +14,7 @@ import com.sun.jna.Library;
  */
 public interface ILibrary extends Library {
     void GetSystemTime(SYSTEMTIME lpSystemTime);
+    boolean GetDiskFreeSpaceA(String lpRootPathName, IntByReference lpSectorsPerCluster, IntByReference lpBytesPerSector, IntByReference lpNumberOfFreeClusters, IntByReference lpTotalNumberOfClusters);
+    
 }
+
