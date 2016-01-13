@@ -18,6 +18,13 @@ public class Jna {
      */
     public static void main(String[] args) {
         ILibrary lib = (ILibrary) Native.loadLibrary("kernel32", ILibrary.class);
+        
+        /*
+        
+        Assignment 1
+        
+        */
+        
         SYSTEMTIME sysTime = new SYSTEMTIME(); 
         
         long startTime;
@@ -31,6 +38,13 @@ public class Jna {
             System.nanoTime();
         System.out.println("nanoTime: " + ((System.nanoTime() - startTime)/1000000) + "ms");
         
+        
+        /*
+        
+        Assignment 2
+        
+        */
+        
         System.out.println("Start Opdracht 2");
         
         String lpRootPathName = "C:\\" ;
@@ -40,7 +54,8 @@ public class Jna {
         IntByReference lpTotalNumberOfClusters = new IntByReference();
         
         if (lib.GetDiskFreeSpaceA(lpRootPathName, lpSectorsPerCluster, lpBytesPerSector, lpNumberOfFreeClusters, lpTotalNumberOfClusters)) {
-            System.out.println("Vrij!");
+            long freeDiskSpace = lpNumberOfFreeClusters.getValue() * lpSectorsPerCluster.getValue() * lpBytesPerSector.getValue();
+            System.out.println("Free space: " + freeDiskSpace );
         }
     }
         
