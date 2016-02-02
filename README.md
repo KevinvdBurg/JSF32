@@ -1,4 +1,5 @@
 # JSF32
 Gemaakt door Martin Drost en Kevin van der Burg
 
-Wij zijn vereerd met al de views. Hopelijk hebben jullie er iets van geleerd! :D
+Als je iets mist, iets is incompleet of gewoon fout? 
+Maak het zelf! Dit is alleen een referentie!
